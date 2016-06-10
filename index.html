@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Piet Interpreter - [Subtitle]</title>
+    <link rel="stylesheet" href="css/master.css" media="screen" title="no title" charset="utf-8">
+    <script src="src/piet-interpreter.js" charset="utf-8"></script>
+  </head>
+  <body onload="initialize();">
+    <div class="piet-interpreter-panel">
+      <div class="left-panel">
+        <div class="color-picker" style="opacity:0.2">
+          <button style="background-color:#ffc0c0;border-color:#ffc0c0" type="button" onclick="selectColor(0);"></button><button style="background-color:#ff0000;border-color:#ff0000" type="button" onclick="selectColor(1);"></button><button style="background-color:#c00000;border-color:#c00000" type="button" onclick="selectColor(2);"></button> <br>
+          <button style="background-color:#ffffc0;border-color:#ffffc0" type="button" onclick="selectColor(3);"></button><button style="background-color:#ffff00;border-color:#ffff00" type="button" onclick="selectColor(4);"></button><button style="background-color:#c0c000;border-color:#c0c000" type="button" onclick="selectColor(5);"></button> <br>
+          <button style="background-color:#c0ffc0;border-color:#c0ffc0" type="button" onclick="selectColor(6);"></button><button style="background-color:#00ff00;border-color:#00ff00" type="button" onclick="selectColor(7);"></button><button style="background-color:#00c000;border-color:#00c000" type="button" onclick="selectColor(8);"></button> <br>
+          <button style="background-color:#c0ffff;border-color:#c0ffff" type="button" onclick="selectColor(9);"></button><button style="background-color:#00ffff;border-color:#00ffff" type="button" onclick="selectColor(10);"></button><button style="background-color:#00c0c0;border-color:#00c0c0" type="button" onclick="selectColor(11);"></button> <br>
+          <button style="background-color:#c0c0ff;border-color:#c0c0ff" type="button" onclick="selectColor(12);"></button><button style="background-color:#0000ff;border-color:#0000ff" type="button" onclick="selectColor(13);"></button><button style="background-color:#0000c0;border-color:#0000c0" type="button" onclick="selectColor(14);"></button> <br>
+          <button style="background-color:#ffc0ff;border-color:#ffc0ff" type="button" onclick="selectColor(15);"></button><button style="background-color:#ff00ff;border-color:#ff00ff" type="button" onclick="selectColor(16);"></button><button style="background-color:#c000c0;border-color:#c000c0" type="button" onclick="selectColor(17);"></button> <br>
+          <button class="misc-color" style="background-color:#000000;border-color:#000000" type="button" onclick="selectColor(18);"></button><button class="misc-color" style="background-color:#ffffff;border-color:#ffffff" type="button" onclick="selectColor(19);"></button>
+        </div>
+        <div class="command-picker">
+          <table>
+            <col>
+            <col width="54">
+            <col width="54">
+            <col width="54">
+            <tr>
+              <td></td>
+              <td colspan=3>Darkness&nbsp;Change</td>
+            </tr>
+            <tr>
+              <td title="Hue Change">HC</td>
+              <td>None</td>
+              <td>1&nbsp;Darker</td>
+              <td>2&nbsp;Darker</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td></td>
+              <td title="Push a number to the stack">Push</td>
+              <td title="Remove the Stack's top value">Pop</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td title="Pop the Stack's top two values.
+Push their sum to the Stack">Add</td>
+              <td title="Pop the Stack's top two values.
+Push the Difference of the second
+  top value minus the top value">Subtract</td>
+              <td title="Pop the Stack's top two values.
+Push their product to the Stack">Multiply</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td title="Pop the Stack's top two values.
+Push the division of the second
+  top value by the top value">Divide</td>
+              <td title="Pop the Stack's top two values.
+Push the modulo of the second
+  top value mod the top value">Mod</td>
+              <td title="Pop the Stack's top value.
+Push 1 if the value was zero,
+  push 0 otherwise">Not</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td title="Pop the Stack's top two values.
+Push 1 if the second top value is
+  greater than the top value,
+  push 0 otherwise">Greater</td>
+              <td title="Pop the Stack's top two values.
+Rotate the direction pointer clockwise
+  by 90° that many times">Pointer</td>
+              <td title="Pop the Stack's top value.
+Take its absolute value and toggle the
+  Codel Chooser that many times">Switch</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td title="Duplicate the Stack's top value">Duplicate</td>
+              <td title="Pop the Stack's top two values.
+The second top value is the depth d
+The top value is the number of iterations i
+If the top value is positive, bury the
+  remaining Stack's top value to be at
+  the d'th place, i times iteratively
+If the top value is negative, roll the opposite direction">Roll</td>
+              <td title="Push the next value from the
+  input buffer onto the Stack if it
+  is an Integer">Int&nbsp;In</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td title="Push the Char value of the
+  Stack's top value ot the Stack">Char&nbsp;In</td>
+              <td title="Pop the Stack's top value.
+Print its integer value to the output">Int&nbsp;Out</td>
+              <td title="Pop the Stack's top value.
+Print the character with its integer
+  value to the output">Char&nbsp;Out</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="top-panel">
+        <div class="settings-panel">
+          <p>
+            <label for="setting-canvas_width">Width: </label>
+            <input id="setting-canvas_width" type="number" min="1" step="1" value="16">
+          </p>
+          <p>
+            <label for="setting-canvas_height">Height: </label>
+            <input id="setting-canvas_height" type="number" min="1" step="1" value="16">
+          </p>
+          <p>
+            <label for="setting-codel_size">Codel Size: </label>
+            <input id="setting-codel_size" type="number" min="1" max="100" step="1" value="20">
+          </p>
+        </div>
+        <div class="io-panel">
+          <div class="input-panel">
+            <label for="input-buffer">Input</label><br>
+            <input autofocus type="text" id="input-buffer">
+          </div>
+          <div class="output-panel">
+            <label for="output-area">Output</label><br>
+            <textarea readonly disabled id="output-area"></textarea>
+          </div>
+        </div>
+        <div class="execution-panel">
+          <table>
+            <tr>
+              <td>
+                <img id="button-run" src="img/run.png"/><br>
+                <label for="run-program">Run</label>
+              </td>
+              <td>
+                <img id="button-step" src="img/step.png"/><br>
+                <label for="step-program">Step</label>
+              </td>
+              <td>
+                <img id="button-stop" src="img/stop.png"/><br>
+                <label for="stop-program">Stop</label>
+              </td>
+            </tr>
+          </table>
+          <div class="stack-panel">
+            <label for="stack-area">Stack</label>
+            <textarea readonly disabled id="stack-area"></textarea>
+          </div>
+        </div>
+      </div>
+      <canvas id="program" style="z-index:3;"></canvas>
+      <canvas id="program-grid" style="z-index:4;"></canvas>
+    </div>
+  </body>
+</html>
