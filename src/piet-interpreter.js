@@ -80,17 +80,17 @@ var stackOperations = [
     // Divide
     function( stack ) {
       if (stack.length >= 2) {
-        num1 = stack.pop();
-        num2 = stack.pop();
-        if (num1 != 0) stack.push( num2/num1 |0 )
+        var num1 = stack.pop(),
+            num2 = stack.pop();
+        if (num1 != 0) stack.push( (num2/num1) |0 )
         else alert( "You shall not div/0" );
         return stack; }
       },
     // Mod
     function( stack ) {
       if (stack.length >= 2) {
-        num1 = stack.pop();
-        num2 = stack.pop();
+        var num1 = stack.pop(),
+            num2 = stack.pop();
         if (num1 != 0) stack.push( num2%num1 )
         else alert( "You shall not div/0" );
         return stack; }
@@ -124,8 +124,8 @@ var stackOperations = [
     // Roll
     function( stack ) {
       if ( stack.length >= 2 ) {
-        num1 = stack.pop(); // Number of rolls
-        num2 = stack.pop(); // Depth of roll
+        var num1 = stack.pop(), // Number of rolls
+            num2 = stack.pop(); // Depth of roll
         if ( num1 === 0 ) return stack;
         if ( num2 <= 0 ) {
           alert( "Cannot execute roll with negative or no depth." );
@@ -148,7 +148,7 @@ var stackOperations = [
         alert( "Int-In Error: Next input is not numeric." );
         return stack; }
 
-      var num = str.match(/\d+/)[0];
+      var num = str.match(/\d+ ?/)[0];
       stack.push( parseInt( num ) );
       inputBuffer.domElement.value = str.substring( num.length );
       return stack;
@@ -184,6 +184,11 @@ var stackOperations = [
   ]
 ]
 
+function doStackOperation(hueChange, darknessChange, colorBlockSize) {
+  stackOperations[hueChange][darknessChange](pietStack, colorBlockSize);
+  updateStack();
+}
+
 function drawCanvasGrid() {
   if (codelSize <= 1) {
     gridC.hidden = true;
@@ -209,6 +214,7 @@ function drawCanvasGrid() {
     }
   }
 }
+
 function resizeCanvas() {
   c.style.height = c.height = gridC.style.height = gridC.height
     = parseInt(pietHeight) * parseInt(codelSize);
@@ -239,6 +245,10 @@ function resetCanvas() {
   clearGrid();
   drawCanvasGrid();
   drawImage();
+}
+
+function updateStack() {
+  stackArea.innerHTML = pietStack.map((e)=>e).reverse().join("\n");
 }
 
 function paintOnImage( x, y, color ) {
@@ -275,6 +285,7 @@ function initialize() {
     window.widthSetting = document.getElementById("setting-canvas_width");
     window.heightSetting = document.getElementById("setting-canvas_height");
     window.codelSizeSetting = document.getElementById("setting-codel_size");
+    window.stackArea = document.getElementById("stack-area");
 
     window.pietColors = [
       "#ffc0c0", "#ff0000", "#c00000",
@@ -291,7 +302,7 @@ function initialize() {
     window.codelSize = codelSizeSetting.value;
 
     window.pietImage = new PietImage(pietWidth, pietHeight);
-    window.pietStack = [ 2, 40, 65, 32, 80 ];
+    window.pietStack = [ ];
     window.codelPointer = null;
     window.directionPointer = 0; // right, down, left, up
     window.codelChooser = 0; // left, right

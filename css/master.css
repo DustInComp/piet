@@ -42,9 +42,6 @@ div {
 
       overflow: hidden;
     }
-    /*.command-picker td:nth-child(n+2) {
-      width: 60px;
-    }*/
 
 /**
  * Panel containing the canvas' settings, in- and output
