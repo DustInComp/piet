@@ -18,15 +18,16 @@ Array.prototype.digUp = function ( n ) {
   return this.valueOf();
 };
 
-function Codel(x, y, color) {
+function Codel(x, y, colorId) {
   this.x = x;
   this.y = y;
-  this.color = color;
+  this.colorId = colorId;
 }
 
-function ColorBlock() {
-  this.colors = [];
-  this.counts = 0;
+function ColorBlock( colorId ) {
+  this.colorId = colorId;
+  this.codels = [];
+  this.count = 0;
 }
 
 function PietImage(width, height) {
@@ -44,145 +45,85 @@ function PietImage(width, height) {
 }
 
 /**
- * Array of 18(-1) functions where the functions 2d indexes equal
+ * Array of 18(-1) functions where the functions' 2d indexes equal
  * [hue change][darkness change]
  */
 var stackOperations = [
-  [
-    function( stack ) { return stack },
-    // Push
-    function( stack, blockSize ) {
-      stack.push( blockSize );
-      return stack; },
-    // Pop
-    function( stack ) {
-      stack.pop();
-      return stack; }
-  ],
-  [
-    // Add
+  [ // None, Push, Pop
+    function(){},
+    function( stack, blockSize ) { stack.push( blockSize ); },
+    function( stack ) { stack.pop(); } ],
+  [ // Add, Subtract, Multiply
     function( stack ) {
       if (stack.length >= 2)
-        stack.push( stack.pop()+stack.pop() );
-      return stack; },
-    // Subtract
+        stack.push( stack.pop()+stack.pop() ); },
     function( stack ) {
       if (stack.length >= 2)
-        stack.push( -stack.pop()+stack.pop() );
-      return stack; },
-    // Multiply
+        stack.push( -stack.pop()+stack.pop() ); },
     function( stack ) {
       if (stack.length >= 2)
-        stack.push( stack.pop()*stack.pop() );
-      return stack; }
-  ],
-  [
-    // Divide
+        stack.push( stack.pop()*stack.pop() ); } ],
+  [ // Divide, Mod, Not
     function( stack ) {
       if (stack.length >= 2) {
         var num1 = stack.pop(),
             num2 = stack.pop();
-        if (num1 != 0) stack.push( (num2/num1) |0 )
-        else alert( "You shall not div/0" );
-        return stack; }
-      },
-    // Mod
+        if (num1 != 0) stack.push( num2/num1 |0 )
+        else alert( "Better not try to div/0" ); } },
     function( stack ) {
       if (stack.length >= 2) {
         var num1 = stack.pop(),
             num2 = stack.pop();
         if (num1 != 0) stack.push( num2%num1 )
-        else alert( "You shall not div/0" );
-        return stack; }
-      },
-    // Not
+        else alert( "You shall not div/0" ); } },
     function( stack ) {
       if (stack.length >= 1)
-        stack.push( stack.pop()===0 ? 1 : 0 );
-      return stack; }
-  ],
-  [
-    // Greater
+        stack.push( stack.pop()===0 ? 1 : 0 ); } ],
+  [ // Greater, Pointer, Switch
     function( stack ) {
       if (stack.length >= 2)
-        stack.push( stack.pop() <= stack.pop() ? 1 : 0 );
-      return stack; },
-    // Pointer
+        stack.push( stack.pop() <= stack.pop() ? 1 : 0 ); },
     function( stack ) {
-      directionPointer = (directionPointer + stack.pop()) % 4;
-      return stack; },
-    // Switch
+      if (stack.length >= 1)
+        directionPointer = (directionPointer + stack.pop()) % 4; },
     function( stack ) {
-      codelChooser = (codelChooser + stack.pop()) % 2;
-      return stack; }
-  ],
-  [
-    // Duplicate
+      if (stack.length >= 1)
+        if ( stack.pop() % 2 === 1 )
+          codelChooser *= -1; } ],
+  [ // Duplicate, Roll, Int In
     function( stack ) {
-      stack.push( stack[stack.length-1] );
-      return stack; },
-    // Roll
+      if (stack.length >= 1)
+        stack.push( stack[stack.length-1] ); },
     function( stack ) {
-      if ( stack.length >= 2 ) {
+      if ( stack.length > 2 ) {
         var num1 = stack.pop(), // Number of rolls
             num2 = stack.pop(); // Depth of roll
-        if ( num1 === 0 ) return stack;
         if ( num2 <= 0 ) {
-          alert( "Cannot execute roll with negative or no depth." );
-          return stack; }
+          alert( "Roll depth has to be at least 1" );
+          return; }
+        if ( num2 > stack.length ) {
+          alert( "Roll depth can't be deeper than remaining stack's length" );
+          return; }
+        if ( num1 === 0 ) return;
 
-        while ( num2 --> 0 )
-          if ( num1 > 0 )
-            stack.bury( num1 );
-          else // num1 < 0
-            stack.digUp( num1 );
-        return stack;
-      }
-    },
-    // Int In
+        while ( num1 --> 0 )
+          if ( num2 > 0 ) stack.bury( num2 )
+          else stack.digUp( num2 ); } },
+    function( stack ) { stack.push( inputBuffer.readInt() ); } ],
+  [ // Char In, Int Out, Char Out
+    function( stack ) { stack.push( inputBuffer.readChar() ); },
     function( stack ) {
-      var str = inputBuffer.domElement.value.trimLeft();
-      if ( str.length === 0 )
-        str = prompt( "Input Buffer is empty.\nEnter some more Input:" );
-      if ( ! /\d/.test(str[0]) ) {
-        alert( "Int-In Error: Next input is not numeric." );
-        return stack; }
+      if (stack.length >= 1)
+        outputArea.print( stack.pop() );
+      else alert( "Int-Out Error: Stack is so goddamn empty rn." ) },
+    function( stack ) {
+      if (stack.length >= 1 && (num = stack.pop()) >= 32)
+        outputArea.print( String.fromCharCode( num )) ; } ]
+];
 
-      var num = str.match(/\d+ ?/)[0];
-      stack.push( parseInt( num ) );
-      inputBuffer.domElement.value = str.substring( num.length );
-      return stack;
-    }
-  ],
-  [
-    // Char In
-    function( stack ) {
-      var str = inputBuffer.domElement.value;
-      if ( str.length === 0 )
-        str = prompt( "Input Buffer is empty.\nEnter some more Input:" )[0]
-      if ( str === null ) {
-        alert( "Char-In Error: No input to work with." );
-        return stack; }
-
-      stack.push( str.charCodeAt(0) );
-      inputBuffer.domElement.value = str.substring( 1 );
-      return stack;
-    },
-    // Int Out
-    function( stack ) {
-      if (stack.length > 0)
-        outputArea.domElement.value += stack.pop();
-      else alert( "Int-Out Error: Stack is so goddamn empty rn." )
-      return stack;
-    },
-    // Char Out
-    function( stack ) {
-      if (stack.length > 0 && (num = stack.pop()) >= 32)
-        outputArea.domElement.value += String.fromCharCode( num );
-      return stack;
-    }
-  ]
-]
+function updateStack() {
+  stackArea.value = pietStack.map( (e)=>e ).reverse().join("\n");
+}
 
 function doStackOperation(hueChange, darknessChange, colorBlockSize) {
   stackOperations[hueChange][darknessChange](pietStack, colorBlockSize);
@@ -236,19 +177,15 @@ function clearImage() {
 }
 
 function drawImage() {
-  pietImage.matrix.map((row,x)=>row.map((codel,y)=>{ paintOnImage(x,y,pietColors[codel.color]) }));
+  pietImage.matrix.map((row,x)=>row.map((codel,y)=>{ paintOnImage(x,y,pietColors[codel.colorId]) }));
 }
 
 function resetCanvas() {
   resizeCanvas();
   clearImage();
   clearGrid();
-  drawCanvasGrid();
   drawImage();
-}
-
-function updateStack() {
-  stackArea.innerHTML = pietStack.map((e)=>e).reverse().join("\n");
+  drawCanvasGrid();
 }
 
 function paintOnImage( x, y, color ) {
@@ -262,77 +199,301 @@ function selectColor( colorId ) {
   selectedColorId = colorId;
 }
 
-function getColorBlock( coord ) {
-  var colorBlock = new ColorBlock();
-  colorBlock.codels.push(pietImage.matrix[coord[0]][coord[1]]);
+function findColorBlock( _x, _y ) {
+  var data = pietImage.matrix, // reference to Codel data
+    colorBlock = new ColorBlock( data[_x][_y].colorId ),
+    codelsChecked = [ data[_x][_y] ],
 
+  checkCodel = function( codel ) {
+    if (codel.colorId == colorBlock.colorId) {
+      // Add codel to set; push() returns new length of Array
+      colorBlock.count = colorBlock.codels.push( codel );
+
+      with(codelsChecked) with(codel) {
+        if ( x>=1 && indexOf(data[x-1][y]) === -1 )
+          push( data[x-1][y] );
+        if ( y>=1 && indexOf(data[x][y-1]) === -1 )
+          push( data[x][y-1] );
+        if ( x<data.length-1 && indexOf(data[x+1][y]) === -1 )
+          push( data[x+1][y] );
+        if ( y<data[0].length-1 && indexOf(data[x][y+1]) === -1 )
+          push( data[x][y+1] ); }
+    }
+  };
+
+  var i = 0;
+  while (i < codelsChecked.length) checkCodel( codelsChecked[i++] );
+
+  return colorBlock;
 }
 
-function executeNextStep() {
-  if (pointer == null) {
-    pointer = [0, 0];
-    var currentBlock = getColorBlock(pointer);
+function determineNextCodel( codeBlock ) {
+  var dP = directionPointer,
+    cC = codelChooser,
+    sP = (directionPointer + codelChooser) < 0 ?
+      directionPointer + codelChooser + 4 :
+      (directionPointer + codelChooser) % 4,
+    edgeCodel,
+    passedWhite = false;
+
+  /**
+   * This reduce statement looks for the codel that is primarily furthest in the
+   * direction of the direction pointer (see initialize function), and sendarily
+   * furthest in the direction of the codel chooser.
+   * The codel chooser differs from the direction pointer by 90 degrees,
+   * clockwise or anti-clockwise.
+   */
+  edgeCodel = codeBlock.codels.reduce( (prev, curr) =>
+    // directionPointer points right
+    (dP === 0) && (
+      curr.x > prev.x ||
+      curr.x === prev.x && (
+        // codelChooser points right: sP points down
+        sP === 1 && curr.y > prev.y ||
+        // codelChooser points left: sP points up
+        sP === 3 && curr.y < prev.y
+      )
+    ) ||
+    (dP === 1) && ( // dP points down
+      curr.y > prev.y ||
+      curr.y === prev.y && (
+        sP === 2 && curr.x < prev.x || // sP points left
+        sP === 0 && curr.x > prev.x   // sP points right
+      )
+    ) ||
+    (dP === 2) && ( // dP points left
+      curr.x < prev.x ||
+      curr.x === prev.x && (
+        sP === 3 && curr.y < prev.y || // sP points up
+        sP === 1 && curr.y > prev.y   // sP points down
+      )
+    ) ||
+    (dP === 3) && ( // dP points up
+      curr.y < prev.y ||
+      curr.y === prev.y && (
+        sP === 0 && curr.x > prev.x || // sP points right
+        sP === 2 && curr.x < prev.x   // sP points left
+      )
+    ) ? curr : prev
+  );
+
+  if (dP === 0) {
+    for (var i = edgeCodel.x + 1; i < pietImage.matrix.length; i++ )
+      with (pietImage.matrix[i][edgeCodel.y]) {
+        if (colorId < 18) {
+          edgeCodel = pietImage.matrix[i][edgeCodel.y];
+          break; }
+        if (colorId === 19)
+          passedWhite = true;
+        if (colorId === 18)
+          break;
+      }
+  }
+  if (dP === 1) {
+    for (var i = edgeCodel.y + 1; i < pietImage.matrix[0].length; i++ )
+      with (pietImage.matrix[edgeCodel.x][i]) {
+        if (colorId < 18) {
+          edgeCodel = pietImage.matrix[edgeCodel.x][i];
+          break; }
+        if (colorId === 19)
+          passedWhite = true;
+        if (colorId === 18)
+          break;
+      }
+  }
+  if (dP === 2) {
+    for (var i = edgeCodel.x - 1; i >= 0; i-- )
+      with (pietImage.matrix[i][edgeCodel.y]) {
+        if (colorId < 18) {
+          edgeCodel = pietImage.matrix[i][edgeCodel.y];
+          break; }
+        if (colorId === 19)
+          passedWhite = true;
+        if (colorId === 18)
+          break;
+      }
+  }
+  if (dP === 3) {
+    for (var i = edgeCodel.y - 1; i >= 0; i-- )
+      with (pietImage.matrix[edgeCodel.x][i]) {
+        if (colorId < 18) {
+          edgeCodel = pietImage.matrix[edgeCodel.x][i];
+          break; }
+        if (colorId === 19)
+          passedWhite = true;
+        if (colorId === 18)
+          break;
+      }
+  }
+
+  // make path visible
+  with ( gridCtx ) {
+    lineTo( (edgeCodel.x+.2+(.5*(dP==0||sP==0))+.1*Math.random())*codelSize,
+      (edgeCodel.y+.2+(.5*(dP==1||sP==1))+.1*Math.random())*codelSize );
+    stroke();
+  }
+
+  return [edgeCodel, passedWhite];
+}
+
+function executeStep() {
+  if (codelPointer == null) {
+    codelPointer = [0, 0];
+
+    resetCanvas();
+    gridCtx.moveTo( .2*codelSize, .2*codelSize );
+
+    return;
+  }
+
+  var prevBlock = findColorBlock( codelPointer[0], codelPointer[1] ),
+    prevHue = prevBlock.colorId/3 |0,
+    prevDrk = prevBlock.colorId % 3,
+    nextLocation = determineNextCodel(prevBlock),
+    nextCodel = nextLocation[0],
+    passedWhite = nextLocation[1];
+  console.log("from", prevBlock, prevHue, prevDrk);
+
+  with ( nextCodel )
+    codelPointer = [x, y];
+
+  if ( prevBlock.codels.indexOf(nextCodel) === -1 ) {
+    var currBlock = findColorBlock( codelPointer[0], codelPointer[1] ),
+      currHue = currBlock.colorId/3 |0,
+      currDrk = currBlock.colorId % 3;
+      console.log("to", currBlock, currHue, currDrk);
+
+    initialPointerAndChooser = [directionPointer, codelChooser];
+
+    if ( !passedWhite )
+      doStackOperation(
+        (currHue-prevHue)<0 ? currHue-prevHue+6 : currHue-prevHue,
+        (currDrk-prevDrk)<0 ? currDrk-prevDrk+3 : currDrk-prevDrk,
+        prevBlock.count );
+  } else {
+    codelChooser *= -1;
+    if (codelChooser == -1)
+      directionPointer = (directionPointer + 1) % 4;
+
+    console.log( "Direction changed: " +
+      ["right","down","left","up"][directionPointer] + " " +
+      (codelChooser === -1 ? "(left)" : "(right)"));
+
+    // Pointer in a loop (Next codel can't be found)
+    if ( directionPointer === initialPointerAndChooser[0] &&
+    codelChooser === initialPointerAndChooser[1] ) {
+      alert("Program finished.");
+      resetExecution();
+    }
   }
 }
 
-function executeRestOfProgram() {}
-function executeStepwise() {}
-function stopExecution() {}
+function finishExecution() {
+  do {
+    executeStep();
+  } while (codelPointer !== null);
+}
+
+function resetExecution() {
+  outputArea.domEl.value = "";
+
+  codelPointer = null;
+
+  directionPointer = 0;
+  codelChooser = -1;
+  pietStack = [];
+  updateStack();
+}
 
 function initialize() {
-    window.inputBuffer = { domElement: document.getElementById("input-buffer") };
-    window.outputArea = { domElement: document.getElementById("output-area") };
-    window.widthSetting = document.getElementById("setting-canvas_width");
-    window.heightSetting = document.getElementById("setting-canvas_height");
-    window.codelSizeSetting = document.getElementById("setting-codel_size");
-    window.stackArea = document.getElementById("stack-area");
+  window.inputBuffer = {
+    domEl: document.getElementById("input-buffer"),
 
-    window.pietColors = [
-      "#ffc0c0", "#ff0000", "#c00000",
-      "#ffffc0", "#ffff00", "#c0c000",
-      "#c0ffc0", "#00ff00", "#00c000",
-      "#c0ffff", "#00ffff", "#00c0c0",
-      "#c0c0ff", "#0000ff", "#0000c0",
-      "#ffc0ff", "#ff00ff", "#c000c0",
-      "#000000", "#ffffff"
-    ];
-    window.selectedColorId = 18;
-    window.pietWidth = widthSetting.value;
-    window.pietHeight = heightSetting.value;
-    window.codelSize = codelSizeSetting.value;
+    readChar: function() {
+      var str = inputBuffer.domEl.value,
+        num;
+      if ( str.length === 0 )
+        str = prompt( "Input Buffer is empty.\nEnter some more Input:" )[0];
+      if ( str === null ) {
+        alert( "Char-In Error: No input to work with." );
+        return; }
 
-    window.pietImage = new PietImage(pietWidth, pietHeight);
-    window.pietStack = [ ];
-    window.codelPointer = null;
-    window.directionPointer = 0; // right, down, left, up
-    window.codelChooser = 0; // left, right
+      num = str.charCodeAt(0);
+      inputBuffer.domEl.value = str.substring( 1 );
+      return num; },
 
-    window.c = document.getElementById("program");
-    window.ctx = c.getContext("2d");
-    window.gridC = document.getElementById("program-grid");
-    window.gridCtx = gridC.getContext("2d");
+    readInt: function() {
+      var str = inputBuffer.domEl.value.trimLeft(),
+        num;
+      if ( str.length === 0 )
+        str = prompt( "Input Buffer is empty.\nEnter some more Input:" );
+      if ( ! /\d/.test(str[0]) ) {
+        alert( "Int-In Error: Next input is not numeric." );
+        return }
 
-    document.getElementById("setting-canvas_width").addEventListener("change", function(e) {
-      pietWidth = e.target.valueAsNumber;
-      resetCanvas();
-    });
-    document.getElementById("setting-canvas_height").addEventListener("change", function(e) {
-      pietHeight = e.target.valueAsNumber;
-      resetCanvas();
-    });
-    document.getElementById("setting-codel_size").addEventListener("change", function(e) {
-      codelSize = e.target.valueAsNumber;
-      resetCanvas();
-    });
-    document.getElementById("program-grid").addEventListener("click", function(e) {
-      var imgX = e.offsetX/codelSize |0,
-          imgY = e.offsetY/codelSize |0;
-      pietImage.matrix[imgX][imgY].color = selectedColorId;
-      paintOnImage( imgX, imgY, pietColors[selectedColorId] );
-    });
-    document.getElementById("button-run").addEventListener("click", executeRestOfProgram);
-    document.getElementById("button-step").addEventListener("click", executeStepwise);
-    document.getElementById("button-stop").addEventListener("click", stopExecution);
+      num = str.match(/\d+ ?/)[0];
+      inputBuffer.domEl.value = str.substring( num.length );
+      return parseInt( num ); }
+  };
 
+  window.outputArea = {
+    domEl: document.getElementById("output-area"),
+    print: function(val) {outputArea.domEl.value += String(val)}
+  }
+
+  window.stackArea = document.getElementById("stack-area");
+  window.pietStack = [ ];
+
+  window.widthSetting = document.getElementById("setting-canvas_width");
+  window.heightSetting = document.getElementById("setting-canvas_height");
+  window.codelSizeSetting = document.getElementById("setting-codel_size");
+
+  window.pietColors = [
+    "#ffc0c0", "#ff0000", "#c00000",
+    "#ffffc0", "#ffff00", "#c0c000",
+    "#c0ffc0", "#00ff00", "#00c000",
+    "#c0ffff", "#00ffff", "#00c0c0",
+    "#c0c0ff", "#0000ff", "#0000c0",
+    "#ffc0ff", "#ff00ff", "#c000c0",
+    "#000000", "#ffffff"
+  ];
+  window.selectedColorId = 18;
+  window.pietWidth = widthSetting.value;
+  window.pietHeight = heightSetting.value;
+  window.codelSize = codelSizeSetting.value;
+
+  window.pietImage = new PietImage(pietWidth, pietHeight);
+  window.codelPointer = null;
+  window.directionPointer = 0; // 0: right, 1: down, 2: left, 3: up
+  window.codelChooser = -1; // -1: left, +1: right
+  window.initialPointerAndChooser = [directionPointer, codelChooser];
+
+  window.c = document.getElementById("program");
+  window.ctx = c.getContext("2d");
+  window.gridC = document.getElementById("program-grid");
+  window.gridCtx = gridC.getContext("2d");
+
+  document.getElementById("setting-canvas_width").addEventListener("change", function(e) {
+    pietWidth = e.target.valueAsNumber;
     resetCanvas();
+  });
+  document.getElementById("setting-canvas_height").addEventListener("change", function(e) {
+    pietHeight = e.target.valueAsNumber;
+    resetCanvas();
+  });
+  document.getElementById("setting-codel_size").addEventListener("change", function(e) {
+    codelSize = e.target.valueAsNumber;
+    resetCanvas();
+  });
+  document.getElementById("program-grid").addEventListener("click", function(e) {
+    var imgX = e.offsetX/codelSize |0,
+        imgY = e.offsetY/codelSize |0;
+    pietImage.matrix[imgX][imgY].colorId = selectedColorId;
+    paintOnImage( imgX, imgY, pietColors[selectedColorId] );
+  });
+  document.getElementById("button-run").addEventListener("click", finishExecution);
+  document.getElementById("button-step").addEventListener("click", executeStep);
+  document.getElementById("button-stop").addEventListener("click", resetExecution);
+
+  resetCanvas();
 };
