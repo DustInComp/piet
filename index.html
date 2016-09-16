@@ -36,66 +36,66 @@
             </tr>
             <tr>
               <td>0</td>
-              <td onclick="doStackOperation(0, 0, null);"></td>
-              <td onclick="doStackOperation(0, 1, parseInt(prompt('Int:',1))||1);" title="Push a number to the stack">Push</td>
-              <td onclick="doStackOperation(0, 2, null);" title="Remove the Stack's top value">Pop</td>
+              <td class="cmd-non"></td>
+              <td class="cmd-psh" title="Push a number to the stack">Push</td>
+              <td class="cmd-pop" title="Remove the Stack's top value">Pop</td>
             </tr>
             <tr>
               <td>1</td>
-              <td onclick="doStackOperation(1, 0, null);" title="Pop the Stack's top two values.
+              <td class="cmd-add" title="Pop the Stack's top two values.
 Push their sum to the Stack">Add</td>
-              <td onclick="doStackOperation(1, 1, null);" title="Pop the Stack's top two values.
+              <td class="cmd-sub" title="Pop the Stack's top two values.
 Push the Difference of the second
   top value minus the top value">Subtract</td>
-              <td onclick="doStackOperation(1, 2, null);" title="Pop the Stack's top two values.
+              <td class="cmd-mpl" title="Pop the Stack's top two values.
 Push their product to the Stack">Multiply</td>
             </tr>
             <tr>
               <td>2</td>
-              <td onclick="doStackOperation(2, 0, null);" title="Pop the Stack's top two values.
+              <td class="cmd-div" title="Pop the Stack's top two values.
 Push the division of the second
   top value by the top value">Divide</td>
-              <td onclick="doStackOperation(2, 1, null);" title="Pop the Stack's top two values.
+              <td class="cmd-mod" title="Pop the Stack's top two values.
 Push the modulo of the second
-  top value mod the top value">Mod</td>
-              <td onclick="doStackOperation(2, 2, null);" title="Pop the Stack's top value.
+  top value % the top value">Mod</td>
+              <td class="cmd-not" title="Pop the Stack's top value.
 Push 1 if the value was zero,
   push 0 otherwise">Not</td>
             </tr>
             <tr>
               <td>3</td>
-              <td onclick="doStackOperation(3, 0, null);" title="Pop the Stack's top two values.
+              <td class="cmd-grt" title="Pop the Stack's top two values.
 Push 1 if the second top value is
   greater than the top value,
   push 0 otherwise">Greater</td>
-              <td onclick="doStackOperation(3, 1, null);" title="Pop the Stack's top two values.
+              <td class="cmd-ptr" title="Pop the Stack's top two values.
 Rotate the direction pointer clockwise
   by 90° that many times">Pointer</td>
-              <td onclick="doStackOperation(3, 2, null);" title="Pop the Stack's top value.
+              <td class="cmd-swt" title="Pop the Stack's top value.
 Take its absolute value and toggle the
   Codel Chooser that many times">Switch</td>
             </tr>
             <tr>
               <td>4</td>
-              <td onclick="doStackOperation(4, 0, null);" title="Duplicate the Stack's top value">Duplicate</td>
-              <td onclick="doStackOperation(4, 1, null);" title="Pop the Stack's top two values.
+              <td class="cmd-dup" title="Duplicate the Stack's top value">Duplicate</td>
+              <td class="cmd-rol" title="Pop the Stack's top two values.
 The second top value is the depth d
 The top value is the number of iterations i
 If the top value is positive, bury the
   remaining Stack's top value to be at
   the d'th place, i times iteratively
 If the top value is negative, roll the opposite direction">Roll</td>
-              <td onclick="doStackOperation(4, 2, null);" title="Push the next value from the
+              <td class="cmd-nbi" title="Push the next value from the
   input buffer onto the Stack if it
   is an Integer">Int&nbsp;In</td>
             </tr>
             <tr>
               <td>5</td>
-              <td onclick="doStackOperation(5, 0, null);" title="Push the Char value of the
+              <td class="cmd-chi" title="Push the Char value of the
   Stack's top value ot the Stack">Char&nbsp;In</td>
-              <td onclick="doStackOperation(5, 1, null);" title="Pop the Stack's top value.
+              <td class="cmd-nbo" title="Pop the Stack's top value.
 Print its integer value to the output">Int&nbsp;Out</td>
-              <td onclick="doStackOperation(5, 2, null);" title="Pop the Stack's top value.
+              <td class="cmd-cho" title="Pop the Stack's top value.
 Print the character with its integer
   value to the output">Char&nbsp;Out</td>
             </tr>
@@ -150,8 +150,10 @@ Print the character with its integer
           </div>
         </div>
       </div>
-      <canvas id="program" style="z-index:3;"></canvas>
-      <canvas id="program-grid" style="z-index:4;"></canvas>
+      <div class="drawing-area">
+        <canvas id="program" style="z-index:3;"></canvas>
+        <canvas id="program-grid" oncontextmenu="return false;" style="z-index:4"></canvas>
+      </div>
     </div>
   </body>
 </html>

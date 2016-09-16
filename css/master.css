@@ -2,6 +2,15 @@ div {
   background-color: #f0f0f0;
 }
 
+.drawing-area {
+  position: absolute;
+  top: 210px;
+  left: 210px;
+  /*overflow: scroll;*/
+  width: 100px;
+  height: 100px;
+}
+
 .piet-interpreter-panel {
   position: absolute;
   width: 400px; height: 400px;
@@ -41,6 +50,10 @@ div {
       font-size: 11px;
 
       overflow: hidden;
+    }
+    .command-picker tr:nth-child(n+3) td:nth-child(n+2) {
+      border-bottom-right-radius: 10px;
+      cursor: pointer;
     }
 
 /**
@@ -150,8 +163,10 @@ canvas#program, canvas#program-grid {
   position: absolute;
   z-index: 1;
 
-  top: 210px;
-  left: 210px;
+  /*top: 210px;
+  left: 210px;*/
+  top: 0px;
+  left: 0px;
 
   border: 1px solid #a0a0a0;
 }

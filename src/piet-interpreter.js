@@ -1,9 +1,11 @@
-/**
- * Burries the last value in the array to be the n'th last value.
+/* Burries the last value in the array to be the n'th last value.
  * Used by the Roll stack op.
  */
-Array.prototype.bury = function ( n ) {
-  if (n < 0) return digUp( -n );
+Array.prototype.bury = function( n ) {
+  if (n < 0)
+    return digUp( -n );
+  if (n > this.length)
+    throw "Can't bury deeper than Array length.";
   if (n <= this.length) {
     section = this.splice(this.length - n, n-1);
     while (section.length > 0)
@@ -12,22 +14,27 @@ Array.prototype.bury = function ( n ) {
   return this.valueOf();
 };
 
-Array.prototype.digUp = function ( n ) {
-  if (n < 0) return bury( -n );
+Array.prototype.digUp = function( n ) {
+  if (n < 0)
+    return bury( -n );
+  if (n > this.length)
+    throw "Can't dig up from deeper than Array length";
   this.push( this.splice( this.length - n, 1 )[0] );
   return this.valueOf();
 };
 
-function Codel(x, y, colorId) {
+function Codel( x, y, colorId ) {
   this.x = x;
   this.y = y;
   this.colorId = colorId;
+  // [this.x, this.y, this.colorId] = arguments;
 }
 
 function ColorBlock( colorId ) {
   this.colorId = colorId;
   this.codels = [];
   this.count = 0;
+  // [this.colorId, this.codels, this.count] = arguments;
 }
 
 function PietImage(width, height) {
@@ -68,14 +75,24 @@ var stackOperations = [
       if (stack.length >= 2) {
         var num1 = stack.pop(),
             num2 = stack.pop();
-        if (num1 != 0) stack.push( num2/num1 |0 )
-        else alert( "Better not try to div/0" ); } },
+        if (num1 != 0)
+          stack.push( num2/num1 |0 )
+        else {
+          console.error( "Need to be superuser to div/0" );
+          alert( "There was a problem." );
+          return;
+        } } },
     function( stack ) {
       if (stack.length >= 2) {
         var num1 = stack.pop(),
             num2 = stack.pop();
-        if (num1 != 0) stack.push( num2%num1 )
-        else alert( "You shall not div/0" ); } },
+        if (num1 != 0)
+          stack.push( num2%num1 )
+        else {
+          console.error( "Need to be superuser to div/0" );
+          alert( "There was a problem." );
+          return;
+        } } },
     function( stack ) {
       if (stack.length >= 1)
         stack.push( stack.pop()===0 ? 1 : 0 ); } ],
@@ -122,7 +139,11 @@ var stackOperations = [
 ];
 
 function updateStack() {
-  stackArea.value = pietStack.map( (e)=>e ).reverse().join("\n");
+  stackArea.value = pietStack.map( function(e){
+    return e >= 32 ?
+      e+"\t"+String.fromCharCode(e)
+      : e
+  } ).reverse().join("\n");
 }
 
 function doStackOperation(hueChange, darknessChange, colorBlockSize) {
@@ -197,6 +218,7 @@ function paintOnImage( x, y, color ) {
 
 function selectColor( colorId ) {
   selectedColorId = colorId;
+  reloadColorHints();
 }
 
 function findColorBlock( _x, _y ) {
@@ -210,13 +232,13 @@ function findColorBlock( _x, _y ) {
       colorBlock.count = colorBlock.codels.push( codel );
 
       with(codelsChecked) with(codel) {
-        if ( x>=1 && indexOf(data[x-1][y]) === -1 )
+        if ( x >= 1 && indexOf( data[x-1][y] ) === -1 )
           push( data[x-1][y] );
-        if ( y>=1 && indexOf(data[x][y-1]) === -1 )
+        if ( y >= 1 && indexOf( data[x][y-1] ) === -1 )
           push( data[x][y-1] );
-        if ( x<data.length-1 && indexOf(data[x+1][y]) === -1 )
+        if ( x < data.length-1 && indexOf( data[x+1][y] ) === -1 )
           push( data[x+1][y] );
-        if ( y<data[0].length-1 && indexOf(data[x][y+1]) === -1 )
+        if ( y < data[0].length-1 && indexOf( data[x][y+1] ) === -1 )
           push( data[x][y+1] ); }
     }
   };
@@ -238,8 +260,8 @@ function determineNextCodel( codeBlock ) {
 
   /**
    * This reduce statement looks for the codel that is primarily furthest in the
-   * direction of the direction pointer (see initialize function), and sendarily
-   * furthest in the direction of the codel chooser.
+   * direction of the direction pointer (see initialize function), and
+   * secondarily furthest in the direction of the codel chooser.
    * The codel chooser differs from the direction pointer by 90 degrees,
    * clockwise or anti-clockwise.
    */
@@ -277,6 +299,19 @@ function determineNextCodel( codeBlock ) {
     ) ? curr : prev
   );
 
+  for (var i = (dP % 2 ? edgeCodel.y : edgeCodel.x ) + ( dP < 2 || -1 );
+                dP > 1 ? i >= 0 : i < (dP < 1 ? pietWidth : pietHeight);
+                dP < 2 ? i++ : i-- )
+    with( dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y] ) {
+      if (colorId < 18) {
+        edgeCodel = dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
+        break; }
+      if (colorId === 19)
+        passedWhite = true;
+      if (colorId === 18)
+        break;
+    }
+/*
   if (dP === 0) {
     for (var i = edgeCodel.x + 1; i < pietImage.matrix.length; i++ )
       with (pietImage.matrix[i][edgeCodel.y]) {
@@ -325,7 +360,7 @@ function determineNextCodel( codeBlock ) {
           break;
       }
   }
-
+*/
   // make path visible
   with ( gridCtx ) {
     lineTo( (edgeCodel.x+.2+(.5*(dP==0||sP==0))+.1*Math.random())*codelSize,
@@ -376,8 +411,8 @@ function executeStep() {
       directionPointer = (directionPointer + 1) % 4;
 
     console.log( "Direction changed: " +
-      ["right","down","left","up"][directionPointer] + " " +
-      (codelChooser === -1 ? "(left)" : "(right)"));
+      ["right","down","left","up"][directionPointer] + ", then " +
+      (codelChooser === -1 ? "left" : "right"));
 
     // Pointer in a loop (Next codel can't be found)
     if ( directionPointer === initialPointerAndChooser[0] &&
@@ -403,6 +438,96 @@ function resetExecution() {
   codelChooser = -1;
   pietStack = [];
   updateStack();
+}
+
+function reloadColorHints() {
+  function getEls(s) {
+    return document.getElementsByClassName( s );
+  }
+  function setHint(elArr, colorId) {
+    for (var i = 0; i < elArr.length; i++) {
+      elArr[i].style.backgroundColor = pietBgColors[colorId];
+      elArr[i].style.borderBottom = "1px solid " + pietColors[colorId];
+      // elArr[i].parent.style.backgroundColor = pietColors[colorId];
+    }
+  }
+
+  var elementArrayList = [
+    "non", "psh", "pop",
+    "add", "sub", "mpl",
+    "div", "mod", "not",
+    "grt", "ptr", "swt",
+    "dup", "rol", "nbi",
+    "chi", "nbo", "cho" ].map( function(cmd) { return getEls("cmd-"+cmd); } );
+
+  for ( var i = 0; i < elementArrayList.length; i++ )
+    if (selectedColorId < 18) {
+      let _colorId = ((selectedColorId/3|0)+(i/3|0))%6*3 + (selectedColorId+i)%3
+      setHint( elementArrayList[i], _colorId );
+
+      for (var j = 0; j < elementArrayList[i].length; j++) {
+        elementArrayList[i][j].onclick = function(){selectColor( _colorId );};
+      }
+      // elementArrayList[i].onclick = function(){ selectColor( currColorId ) };
+    } else {
+      setHint( elementArrayList[i], i==0 ? selectedColorId : i );
+
+      for (j = 0; j < elementArrayList[i].length; j++) {
+        // make i not dynamic af
+        let _i = i;
+        elementArrayList[i][j].onclick = function(){selectColor( _i );};
+      }
+    }
+}
+
+function resizePietImage( newWidth, newHeight ) {
+  if ( newWidth < 1 || newHeight < 1 )
+    return console.error( "Oh hell no." );
+
+  var oldWidth = pietImage.matrix.length,
+    oldHeight = pietImage.matrix[0].length;
+
+  pietImage.width = newWidth;
+  pietImage.height = newHeight;
+
+
+  if ( newWidth > oldWidth ) {
+    pietWidth = newWidth;
+    let i = oldWidth;
+    while ( i < newWidth ) {
+      pietImage.matrix.push([]);
+
+      let j = 0;
+      while ( j < oldHeight) {
+        pietImage.matrix[i].push( new Codel( i, j, 19 ) );
+        j++;
+      }
+      i++;
+    }
+  }
+
+  if ( newWidth < oldWidth )
+    pietWidth = newWidth;
+
+
+  if ( newHeight > oldHeight ) {
+    pietHeight = newHeight;
+    let i = 0;
+    while ( i < newWidth ) {
+      let j = oldHeight;
+      while ( j < newHeight ) {
+        pietImage.matrix[i].push( new Codel( i, j, 19 ) );
+        j++;
+      }
+      i++;
+    }
+  }
+
+  if ( newHeight < oldHeight )
+    pietHeight = newHeight;
+
+
+
 }
 
 function initialize() {
@@ -440,7 +565,6 @@ function initialize() {
     domEl: document.getElementById("output-area"),
     print: function(val) {outputArea.domEl.value += String(val)}
   }
-
   window.stackArea = document.getElementById("stack-area");
   window.pietStack = [ ];
 
@@ -457,7 +581,17 @@ function initialize() {
     "#ffc0ff", "#ff00ff", "#c000c0",
     "#000000", "#ffffff"
   ];
-  window.selectedColorId = 18;
+  window.pietBgColors = [
+    "#fff0f0", "#ffd0d0", "#ffb0b0",
+    "#fffff0", "#ffffd0", "#ffffb0",
+    "#f0fff0", "#d0ffd0", "#b0ffb0",
+    "#f0ffff", "#d0ffff", "#b0ffff",
+    "#f0f0ff", "#d0d0ff", "#b0b0ff",
+    "#fff0ff", "#ffd0ff", "#ffb0ff",
+    "#b0b0b0", "#ffffff"
+  ]
+  window.selectedColorId;
+  selectColor( 18 );
   window.pietWidth = widthSetting.value;
   window.pietHeight = heightSetting.value;
   window.codelSize = codelSizeSetting.value;
@@ -474,11 +608,11 @@ function initialize() {
   window.gridCtx = gridC.getContext("2d");
 
   document.getElementById("setting-canvas_width").addEventListener("change", function(e) {
-    pietWidth = e.target.valueAsNumber;
+    resizePietImage( e.target.valueAsNumber, pietHeight );
     resetCanvas();
   });
   document.getElementById("setting-canvas_height").addEventListener("change", function(e) {
-    pietHeight = e.target.valueAsNumber;
+    resizePietImage( pietWidth, e.target.valueAsNumber );
     resetCanvas();
   });
   document.getElementById("setting-codel_size").addEventListener("change", function(e) {
@@ -486,8 +620,9 @@ function initialize() {
     resetCanvas();
   });
   document.getElementById("program-grid").addEventListener("click", function(e) {
+    console.log(e);
     var imgX = e.offsetX/codelSize |0,
-        imgY = e.offsetY/codelSize |0;
+      imgY = e.offsetY/codelSize |0;
     pietImage.matrix[imgX][imgY].colorId = selectedColorId;
     paintOnImage( imgX, imgY, pietColors[selectedColorId] );
   });
