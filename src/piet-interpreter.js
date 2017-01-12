@@ -123,16 +123,19 @@ var stackOperations = [
           return; }
         if ( num1 === 0 ) return;
 
-        while ( num1 --> 0 )
-          if ( num2 > 0 ) stack.bury( num2 )
-          else stack.digUp( num2 ); } },
+        if ( num1 > 0 )
+          while ( num1 --> 0 )
+            stack.bury( num2 );
+        else
+          while ( num1++ < 0 )
+            stack.digUp( num2 ); } },
     function( stack ) { stack.push( inputBuffer.readInt() ); } ],
   [ // Char In, Int Out, Char Out
     function( stack ) { stack.push( inputBuffer.readChar() ); },
     function( stack ) {
       if (stack.length >= 1)
         outputArea.print( stack.pop() );
-      else alert( "Int-Out Error: Stack is so goddamn empty rn." ) },
+      else alert( "Int-Out Error: Stack is empty." ) },
     function( stack ) {
       if (stack.length >= 1 && (num = stack.pop()) >= 32)
         outputArea.print( String.fromCharCode( num )) ; } ]
@@ -258,50 +261,45 @@ function determineNextCodel( codeBlock ) {
     edgeCodel,
     passedWhite = false;
 
-  /**
-   * This reduce statement looks for the codel that is primarily furthest in the
-   * direction of the direction pointer (see initialize function), and
-   * secondarily furthest in the direction of the codel chooser.
-   * The codel chooser differs from the direction pointer by 90 degrees,
-   * clockwise or anti-clockwise.
-   */
   edgeCodel = codeBlock.codels.reduce( (prev, curr) =>
-    // directionPointer points right
-    (dP === 0) && (
-      curr.x > prev.x ||
-      curr.x === prev.x && (
-        // codelChooser points right: sP points down
-        sP === 1 && curr.y > prev.y ||
-        // codelChooser points left: sP points up
-        sP === 3 && curr.y < prev.y
+    // curr is further to the edge than prev if
+    // it is further along the direction of the directionPointer or
+    // it is as far along that direction and further along the codelChooser
+    //   direction than prev
+
+    (dP === 0) && ( // directionPointer points right
+      curr.x > prev.x || // curr is right of prev
+      curr.x === prev.x && ( // curr is parallel to prev
+        sP === 1 && curr.y > prev.y || // sP points down and curr is below prev
+        sP === 3 && curr.y < prev.y // sP points up and curr is above prev
       )
     ) ||
-    (dP === 1) && ( // dP points down
+    (dP === 1) && (
       curr.y > prev.y ||
       curr.y === prev.y && (
-        sP === 2 && curr.x < prev.x || // sP points left
-        sP === 0 && curr.x > prev.x   // sP points right
+        sP === 2 && curr.x < prev.x ||
+        sP === 0 && curr.x > prev.x
       )
     ) ||
-    (dP === 2) && ( // dP points left
+    (dP === 2) && (
       curr.x < prev.x ||
       curr.x === prev.x && (
-        sP === 3 && curr.y < prev.y || // sP points up
-        sP === 1 && curr.y > prev.y   // sP points down
+        sP === 3 && curr.y < prev.y ||
+        sP === 1 && curr.y > prev.y
       )
     ) ||
-    (dP === 3) && ( // dP points up
+    (dP === 3) && (
       curr.y < prev.y ||
       curr.y === prev.y && (
-        sP === 0 && curr.x > prev.x || // sP points right
-        sP === 2 && curr.x < prev.x   // sP points left
+        sP === 0 && curr.x > prev.x ||
+        sP === 2 && curr.x < prev.x
       )
     ) ? curr : prev
   );
 
-  for (var i = (dP % 2 ? edgeCodel.y : edgeCodel.x ) + ( dP < 2 || -1 );
-                dP > 1 ? i >= 0 : i < (dP < 1 ? pietWidth : pietHeight);
-                dP < 2 ? i++ : i-- )
+  for (var i = (dP%2 == 1 ? edgeCodel.y : edgeCodel.x ) + ( dP<2 ? 1 : -1 );
+      dP>1 ? i>=0 : i < (dP < 1 ? pietWidth : pietHeight);
+      dP<2 ? i++ : i-- )
     with( dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y] ) {
       if (colorId < 18) {
         edgeCodel = dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
