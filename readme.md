@@ -1,11 +1,9 @@
-#Piet IDE and Interpreter
+#Piet Code Editor and Interpreter
 
 ## Instruction table
 
-The table of instructions currently functions as a mock for program execution as
-the actual interpreter doesn't work yet.
+The table of instructions (lower left) can be clicked to select the color for the clicked operation based on the current selection.
 
 ## Input
 
-In the input buffer, separate a number from the next character to be read with a
-space.
+Adjacent digit characters will be read as a whole number, not as their character codes.
