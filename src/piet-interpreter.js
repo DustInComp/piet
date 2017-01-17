@@ -134,10 +134,10 @@ var stackOperations = [
       else alert( "Int-Out Error: stack is empty." ) },
     function( stack ) {
       if (stack.length >= 1)
-        if (num = stack.pop()) >= 32) {
+        if ((num = stack.pop()) >= 32) {
           outputArea.print( String.fromCharCode( num ));
         }
-      else alert( "Int-Out Error: stack is empty." ) },} ]
+      else alert( "Int-Out Error: stack is empty." ); } ]
 ];
 
 function updateStack() {
