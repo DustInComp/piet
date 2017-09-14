@@ -1,11 +1,11 @@
-/* Burries the last value in the array to be the n'th last value.
- * Used by the Roll stack op.
+/* Buries the last value in the array to be the n'th last value.
+ * Used by the Roll stack operation.
  */
 Array.prototype.bury = function( n ) {
   if (n < 0)
     return digUp( -n );
   if (n > this.length)
-    throw "Can't bury deeper than Array length.";
+    throw "Can't bury deeper than array length.";
   if (n <= this.length) {
     section = this.splice(this.length - n, n-1);
     while (section.length > 0)
@@ -18,7 +18,7 @@ Array.prototype.digUp = function( n ) {
   if (n < 0)
     return bury( -n );
   if (n > this.length)
-    throw "Can't dig up from deeper than Array length";
+    throw "Can't dig up from deeper than array length";
   this.push( this.splice( this.length - n, 1 )[0] );
   return this.valueOf();
 };
@@ -27,14 +27,12 @@ function Codel( x, y, colorId ) {
   this.x = x;
   this.y = y;
   this.colorId = colorId;
-  // [this.x, this.y, this.colorId] = arguments;
 }
 
 function ColorBlock( colorId ) {
   this.colorId = colorId;
   this.codels = [];
   this.count = 0;
-  // [this.colorId, this.codels, this.count] = arguments;
 }
 
 function PietImage(width, height) {
@@ -53,7 +51,7 @@ function PietImage(width, height) {
 
 /**
  * Array of 18(-1) functions where the functions' 2d indexes equal
- * [hue change][darkness change]
+ * [hue diff][darkness diff]
  */
 var stackOperations = [
   [ // None, Push, Pop
@@ -78,8 +76,7 @@ var stackOperations = [
         if (num1 != 0)
           stack.push( num2/num1 |0 )
         else {
-          console.error( "Need to be superuser to div/0" );
-          alert( "There was a problem." );
+          alert( "Can't divide by 0." );
           return;
         } } },
     function( stack ) {
@@ -89,8 +86,7 @@ var stackOperations = [
         if (num1 != 0)
           stack.push( num2%num1 )
         else {
-          console.error( "Need to be superuser to div/0" );
-          alert( "There was a problem." );
+          alert( "Can't mod 0." );
           return;
         } } },
     function( stack ) {
@@ -119,12 +115,12 @@ var stackOperations = [
           alert( "Roll depth has to be at least 1" );
           return; }
         if ( num2 > stack.length ) {
-          alert( "Roll depth can't be deeper than remaining stack's length" );
+          alert( "Roll depth can't be greater than remaining stack's length" );
           return; }
         if ( num1 === 0 ) return;
 
         if ( num1 > 0 )
-          while ( num1 --> 0 )
+          while ( num1-- > 0 )
             stack.bury( num2 );
         else
           while ( num1++ < 0 )
@@ -135,10 +131,13 @@ var stackOperations = [
     function( stack ) {
       if (stack.length >= 1)
         outputArea.print( stack.pop() );
-      else alert( "Int-Out Error: Stack is empty." ) },
+      else alert( "Int-Out Error: stack is empty." ) },
     function( stack ) {
-      if (stack.length >= 1 && (num = stack.pop()) >= 32)
-        outputArea.print( String.fromCharCode( num )) ; } ]
+      if (stack.length >= 1)
+        if ((num = stack.pop()) >= 32) {
+          outputArea.print( String.fromCharCode( num ));
+        }
+      else alert( "Int-Out Error: stack is empty." ); } ]
 ];
 
 function updateStack() {
@@ -413,7 +412,7 @@ function executeStep() {
     var currBlock = findColorBlock( codelPointer[0], codelPointer[1] ),
       currHue = currBlock.colorId/3 |0,
       currDrk = currBlock.colorId % 3;
-      console.log("to", currBlock, currHue, currDrk);
+    console.log("to", currBlock, currHue, currDrk);
 
     initialPointerAndChooser = [directionPointer, codelChooser];
 
@@ -478,7 +477,7 @@ function reloadColorHints() {
     "dup", "rol", "nbi",
     "chi", "nbo", "cho" ].map( function(cmd) { return getEls("cmd-"+cmd); } );
 
-  for ( var i = 0; i < elementArrayList.length; i++ )
+  for ( var i = 0; i < elementArrayList.length; i++ ) {
     if (selectedColorId < 18) {
       let _colorId = ((selectedColorId/3|0)+(i/3|0))%6*3 + (selectedColorId+i)%3
       setHint( elementArrayList[i], _colorId );
@@ -486,16 +485,15 @@ function reloadColorHints() {
       for (var j = 0; j < elementArrayList[i].length; j++) {
         elementArrayList[i][j].onclick = function(){selectColor( _colorId );};
       }
-      // elementArrayList[i].onclick = function(){ selectColor( currColorId ) };
     } else {
       setHint( elementArrayList[i], i==0 ? selectedColorId : i );
 
       for (j = 0; j < elementArrayList[i].length; j++) {
-        // make i not dynamic af
         let _i = i;
         elementArrayList[i][j].onclick = function(){selectColor( _i );};
       }
     }
+  }
 }
 
 function resizePietImage( newWidth, newHeight ) {
@@ -507,7 +505,6 @@ function resizePietImage( newWidth, newHeight ) {
 
   pietImage.width = newWidth;
   pietImage.height = newHeight;
-
 
   if ( newWidth > oldWidth ) {
     pietWidth = newWidth;
@@ -559,7 +556,8 @@ function initialize() {
 
       num = str.charCodeAt(0);
       inputBuffer.domEl.value = str.substring( 1 );
-      return num; },
+      return num;
+    },
 
     readInt: function() {
       var str = inputBuffer.domEl.value.trimLeft(),
@@ -572,7 +570,8 @@ function initialize() {
 
       num = str.match(/\d+ ?/)[0];
       inputBuffer.domEl.value = str.substring( num.length );
-      return parseInt( num ); }
+      return parseInt( num );
+    }
   };
 
   window.outputArea = {
