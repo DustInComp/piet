@@ -154,7 +154,7 @@ function doStackOperation(hueChange, darknessChange, colorBlockSize) {
   updateStack();
 }
 
-function drawCanvasGrid() {
+function drawCanvGrid() {
   if (codelSize <= 1) {
     gridC.hidden = true;
   } else with ( gridCtx ) {
@@ -187,29 +187,35 @@ function resizeCanvas() {
     = parseInt(pietWidth) * parseInt(codelSize);
 }
 
-function clearGrid() {
+function clearCanvGrid() {
   with (gridCtx) {
     clearRect( 0, 0, canvas.width, canvas.height );
   }
 }
 
-function clearImage() {
+function clearCanvImage() {
   with (ctx) {
     fillStyle = "#ffffff";
     fillRect( 0, 0, canvas.width, canvas.height );
   }
 }
 
-function drawImage() {
+function drawCanvImage() {
   pietImage.matrix.map((row,x)=>row.map((codel,y)=>{ paintOnImage(x,y,pietColors[codel.colorId]) }));
 }
 
 function resetCanvas() {
   resizeCanvas();
-  clearImage();
-  clearGrid();
-  drawImage();
-  drawCanvasGrid();
+  resetCanvImage();
+  resetCanvGrid();
+}
+function resetCanvImage() {
+  clearCanvImage();
+  drawCanvImage();
+}
+function resetCanvGrid() {
+  clearCanvGrid();
+  drawCanvGrid();
 }
 
 function paintOnImage( x, y, color ) {
@@ -253,15 +259,16 @@ function findColorBlock( _x, _y ) {
 }
 
 function determineNextCodel( codeBlock ) {
-  var dP = directionPointer,
-    cC = codelChooser,
-    sP = (directionPointer + codelChooser) < 0 ?
-      directionPointer + codelChooser + 4 :
-      (directionPointer + codelChooser) % 4,
-    edgeCodel,
-    passedWhite = false;
+  var dP = directionPointer;
+  var cC = codelChooser;
+  var sP = (dP + cC) < 0 ?
+      dP + cC + 4 :
+      (dP + cC) % 4;
+  var edgeCodel;
+  var targetCodel;
+  var passedWhite = false;
 
-  edgeCodel = codeBlock.codels.reduce( (prev, curr) =>
+  targetCodel = edgeCodel = codeBlock.codels.reduce( (prev, curr) =>
     // curr is further to the edge than prev if
     // it is further along the direction of the directionPointer or
     // it is as far along that direction and further along the codelChooser
@@ -302,13 +309,17 @@ function determineNextCodel( codeBlock ) {
       dP<2 ? i++ : i-- )
     with( dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y] ) {
       if (colorId < 18) {
-        edgeCodel = dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
-        break; }
+        targetCodel = dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
+        break;
+      }
       if (colorId === 19)
         passedWhite = true;
       if (colorId === 18)
         break;
     }
+
+    // make path visible
+    advancePath(edgeCodel, targetCodel, dP, sP);
 /*
   if (dP === 0) {
     for (var i = edgeCodel.x + 1; i < pietImage.matrix.length; i++ )
@@ -359,14 +370,22 @@ function determineNextCodel( codeBlock ) {
       }
   }
 */
-  // make path visible
-  with ( gridCtx ) {
-    lineTo( (edgeCodel.x+.2+(.5*(dP==0||sP==0))+.1*Math.random())*codelSize,
-      (edgeCodel.y+.2+(.5*(dP==1||sP==1))+.1*Math.random())*codelSize );
-    stroke();
-  }
 
-  return [edgeCodel, passedWhite];
+  return [targetCodel, passedWhite];
+}
+
+function advancePath(edgeCodel, targetCodel, dP, sP) {
+  gridCtx.lineTo(
+    (edgeCodel.x+.5 + (!(dP%2)&&(.8*(dP==0) -.4)) + (!(sP%2)&&(.4*(sP==0) -.2)) +.1*(Math.random()-.5) )*codelSize,
+    (edgeCodel.y+.5 + (dP%2&&(.8*(dP==1) -.4)) + (sP%2&&(.4*(sP==1) -.2)) +.1*(Math.random()-.5) )*codelSize
+  );
+  if (targetCodel !== edgeCodel)
+    gridCtx.lineTo(
+      (targetCodel.x+.5 + (!(dP%2)&&(.8*(dP==0) -.4)) + (!(sP%2)&&(.4*(sP==0) -.2)) +.1*(Math.random()-.5) )*codelSize,
+      (targetCodel.y+.5 + (dP%2&&(.8*(dP==1) -.4)) + (sP%2&&(.4*(sP==1) -.2)) +.1*(Math.random()-.5) )*codelSize
+    );
+  resetCanvGrid();
+  gridCtx.stroke();
 }
 
 function executeStep() {
@@ -374,7 +393,7 @@ function executeStep() {
     codelPointer = [0, 0];
 
     resetCanvas();
-    gridCtx.moveTo( .2*codelSize, .2*codelSize );
+    gridCtx.moveTo( .5*codelSize, .5*codelSize );
 
     return;
   }
@@ -404,9 +423,9 @@ function executeStep() {
         (currDrk-prevDrk)<0 ? currDrk-prevDrk+3 : currDrk-prevDrk,
         prevBlock.count );
   } else {
-    codelChooser *= -1;
-    if (codelChooser == -1)
-      directionPointer = (directionPointer + 1) % 4;
+    if (directionPointer%2 ^ codelChooser==1)
+      directionPointer = (directionPointer+1) % 4
+    else codelChooser *= -1;
 
     console.log( "Direction changed: " +
       ["right","down","left","up"][directionPointer] + ", then " +
@@ -434,6 +453,7 @@ function resetExecution() {
 
   directionPointer = 0;
   codelChooser = -1;
+  initialPointerAndChooser = [directionPointer, codelChooser];
   pietStack = [];
   updateStack();
 }
@@ -507,7 +527,6 @@ function resizePietImage( newWidth, newHeight ) {
   if ( newWidth < oldWidth )
     pietWidth = newWidth;
 
-
   if ( newHeight > oldHeight ) {
     pietHeight = newHeight;
     let i = 0;
@@ -523,9 +542,6 @@ function resizePietImage( newWidth, newHeight ) {
 
   if ( newHeight < oldHeight )
     pietHeight = newHeight;
-
-
-
 }
 
 function initialize() {
