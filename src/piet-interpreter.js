@@ -57,8 +57,8 @@ var stackOperations = [
   [ // None, Push, Pop
     function(){},
     function( stack, blockSize ) { stack.push( blockSize ); },
-    function( stack ) { stack.pop(); } ],
-  [ // Add, Subtract, Multiply
+    function( stack ) { stack.pop(); }
+    ],  [ // Add, Subtract, Multiply
     function( stack ) {
       if (stack.length >= 2)
         stack.push( stack.pop()+stack.pop() ); },
@@ -260,9 +260,6 @@ function findColorBlock( _x, _y ) {
 function determineNextCodel( codeBlock ) {
   var dP = directionPointer;
   var cC = codelChooser;
-  var sP = (dP + cC) < 0 ?
-      dP + cC + 4 :
-      (dP + cC) % 4;
   var edgeCodel;
   var targetCodel;
   var passedWhite = false;
@@ -272,103 +269,45 @@ function determineNextCodel( codeBlock ) {
     // it is further along the direction of the directionPointer or
     // it is as far along that direction and further along the codelChooser
     //   direction than prev
-
-    (dP === 0) && ( // directionPointer points right
-      curr.x > prev.x || // curr is right of prev
-      curr.x === prev.x && ( // curr is parallel to prev
-        sP === 1 && curr.y > prev.y || // sP points down and curr is below prev
-        sP === 3 && curr.y < prev.y // sP points up and curr is above prev
-      )
-    ) ||
-    (dP === 1) && (
-      curr.y > prev.y ||
-      curr.y === prev.y && (
-        sP === 2 && curr.x < prev.x ||
-        sP === 0 && curr.x > prev.x
-      )
-    ) ||
-    (dP === 2) && (
-      curr.x < prev.x ||
-      curr.x === prev.x && (
-        sP === 3 && curr.y < prev.y ||
-        sP === 1 && curr.y > prev.y
-      )
-    ) ||
-    (dP === 3) && (
-      curr.y < prev.y ||
-      curr.y === prev.y && (
-        sP === 0 && curr.x > prev.x ||
-        sP === 2 && curr.x < prev.x
-      )
-    ) ? curr : prev
+    dP == 0 && (
+        curr.x > prev.x ||
+        curr.x == prev.x &&
+            (cC ? curr.y > prev.y
+                : curr.y < prev.y) ) ||
+    dp == 1 && (
+        curr.y > prev.y ||
+        curr.y == prev.y &&
+            (cC ? curr.x < prev.x
+                : curr.x > prev.x) ) ||
+    dp == 2 && (
+        curr.x < prev.x ||
+        curr.x == prev.x &&
+            (cC ? curr.y < prev.y
+                : curr.y > prev.y) ) ||
+    dp == 3 && (
+        curr.y < prev.y ||
+        curr.y == prev.y &&
+            (cC ? curr.x > prev.x
+                : curr.x < prev.x) )
+    ? curr : prev
   );
 
-  for (var i = (dP%2 == 1 ? edgeCodel.y : edgeCodel.x ) + ( dP<2 ? 1 : -1 );
-      dP>1 ? i>=0 : i < (dP < 1 ? pietWidth : pietHeight);
-      dP<2 ? i++ : i-- )
-    with( dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y] ) {
-      if (colorId < 18) {
-        targetCodel = dP % 2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
-        break;
-      }
-      if (colorId === 19)
-        passedWhite = true;
-      if (colorId === 18)
-        break;
+    for (var i = (dP%2 ? edgeCodel.y : edgeCodel.x ) + ( dP<2 ? 1 : -1 );
+            dP<2 ? i < (dP&1 ? pietHeight : pietWidth) : i >= 0;
+            dP<2 ? i++ : i-- ) {
+        let codel = dP%2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
+        if (codel.colorId < 18) {
+            targetCodel = codel;
+            break;
+        }
+        else if (codel.colorId == 18)
+            break;
+        else if (codel.colorId == 19)
+            passedWhite = true;
     }
 
     // make path visible
     advancePath(edgeCodel, targetCodel, dP, sP);
-/*
-  if (dP === 0) {
-    for (var i = edgeCodel.x + 1; i < pietImage.matrix.length; i++ )
-      with (pietImage.matrix[i][edgeCodel.y]) {
-        if (colorId < 18) {
-          edgeCodel = pietImage.matrix[i][edgeCodel.y];
-          break; }
-        if (colorId === 19)
-          passedWhite = true;
-        if (colorId === 18)
-          break;
-      }
-  }
-  if (dP === 1) {
-    for (var i = edgeCodel.y + 1; i < pietImage.matrix[0].length; i++ )
-      with (pietImage.matrix[edgeCodel.x][i]) {
-        if (colorId < 18) {
-          edgeCodel = pietImage.matrix[edgeCodel.x][i];
-          break; }
-        if (colorId === 19)
-          passedWhite = true;
-        if (colorId === 18)
-          break;
-      }
-  }
-  if (dP === 2) {
-    for (var i = edgeCodel.x - 1; i >= 0; i-- )
-      with (pietImage.matrix[i][edgeCodel.y]) {
-        if (colorId < 18) {
-          edgeCodel = pietImage.matrix[i][edgeCodel.y];
-          break; }
-        if (colorId === 19)
-          passedWhite = true;
-        if (colorId === 18)
-          break;
-      }
-  }
-  if (dP === 3) {
-    for (var i = edgeCodel.y - 1; i >= 0; i-- )
-      with (pietImage.matrix[edgeCodel.x][i]) {
-        if (colorId < 18) {
-          edgeCodel = pietImage.matrix[edgeCodel.x][i];
-          break; }
-        if (colorId === 19)
-          passedWhite = true;
-        if (colorId === 18)
-          break;
-      }
-  }
-*/
 
   return [targetCodel, passedWhite];
 }
@@ -388,72 +327,69 @@ function advancePath(edgeCodel, targetCodel, dP, sP) {
 }
 
 function executeStep() {
-  if (codelPointer == null) {
-    codelPointer = [0, 0];
+    if (codelPointer == null) {
+        codelPointer = [0, 0];
 
-    resetCanvas();
-    gridCtx.moveTo( .5*codelSize, .5*codelSize );
+        resetCanvas();
+        gridCtx.moveTo( .5*codelSize, .5*codelSize );
 
-    return;
-  }
-
-  var prevBlock = findColorBlock( codelPointer[0], codelPointer[1] ),
-    prevHue = prevBlock.colorId/3 |0,
-    prevDrk = prevBlock.colorId % 3,
-    nextLocation = determineNextCodel(prevBlock),
-    nextCodel = nextLocation[0],
-    passedWhite = nextLocation[1];
-  console.log("from", prevBlock, prevHue, prevDrk);
-
-  with ( nextCodel )
-    codelPointer = [x, y];
-
-  if ( prevBlock.codels.indexOf(nextCodel) === -1 ) {
-    var currBlock = findColorBlock( codelPointer[0], codelPointer[1] ),
-      currHue = currBlock.colorId/3 |0,
-      currDrk = currBlock.colorId % 3;
-    console.log("to", currBlock, currHue, currDrk);
-
-    initialPointerAndChooser = [directionPointer, codelChooser];
-
-    if ( !passedWhite )
-      doStackOperation(
-        (currHue-prevHue)<0 ? currHue-prevHue+6 : currHue-prevHue,
-        (currDrk-prevDrk)<0 ? currDrk-prevDrk+3 : currDrk-prevDrk,
-        prevBlock.count );
-  } else {
-    if (directionPointer%2 ^ codelChooser==1)
-      directionPointer = (directionPointer+1) % 4
-    else codelChooser *= -1;
-
-    console.log( "Direction changed: " +
-      ["right","down","left","up"][directionPointer] + ", then " +
-      (codelChooser === -1 ? "left" : "right"));
-
-    // Pointer in a loop (Next codel can't be found)
-    if ( directionPointer === initialPointerAndChooser[0] &&
-    codelChooser === initialPointerAndChooser[1] ) {
-      alert("Program finished.");
-      resetExecution();
+        return;
     }
-  }
+
+    var prevBlock = findColorBlock( ...codelPointer );
+    var prevHue = prevBlock.colorId/3 |0;
+    var prevDrk = prevBlock.colorId % 3;
+    var [nextCodel, passedWhite] = determineNextCodel( prevBlock );
+    console.log( "from", prevBlock, prevHue, prevDrk );
+
+    codelPointer = [nextCodel.x, nextCodel.y];
+
+    if ( !prevBlock.codels.includes( nextCodel ) ) {
+        var currBlock = findColorBlock( ...codelPointer ),
+        currHue = currBlock.colorId/3 |0,
+        currDrk = currBlock.colorId % 3;
+        console.log( "to", currBlock, currHue, currDrk );
+
+        initialPointerAndChooser = [directionPointer, codelChooser];
+
+        if ( !passedWhite )
+            doStackOperation(
+                (currHue-prevHue+6)%6,
+                (currDrk-prevDrk+3)%3,
+                prevBlock.count );
+
+    } else {
+        (codelChooser = codelChooser+1 & 1)
+        || (directionPointer = directionPointer+1 & 3);
+
+        console.log( "Direction changed: " +
+            ["right","down","left","up"][directionPointer] + ", then " +
+            (!codelChooser ? "left" : "right") );
+
+        // Pointer in a loop (Next codel can't be found)
+        if ( directionPointer === initialPointerAndChooser[0] &&
+                codelChooser === initialPointerAndChooser[1] ) {
+            alert("Program finished.");
+            resetExecution();
+        }
+    }
 }
 
 function finishExecution() {
-  do {
-    executeStep();
-  } while (codelPointer !== null);
+    do {
+        executeStep();
+    } while (codelPointer !== null);
 }
 
 function resetExecution() {
-  outputArea.domEl.value = "";
+  window.outputArea.domEl.value = "";
 
-  codelPointer = null;
+  window.codelPointer = null;
 
-  directionPointer = 0;
-  codelChooser = -1;
-  initialPointerAndChooser = [directionPointer, codelChooser];
-  pietStack = [];
+  window.directionPointer = 0;
+  window.codelChooser = 0;
+  window.initialPointerAndChooser = [directionPointer, codelChooser];
+  window.pietStack = [];
   updateStack();
 }
 
@@ -610,10 +546,7 @@ function initialize() {
   window.codelSize = codelSizeSetting.value;
 
   window.pietImage = new PietImage(pietWidth, pietHeight);
-  window.codelPointer = null;
-  window.directionPointer = 0; // 0: right, 1: down, 2: left, 3: up
-  window.codelChooser = -1; // -1: left, +1: right
-  window.initialPointerAndChooser = [directionPointer, codelChooser];
+  resetExecution();
 
   window.c = document.getElementById("program");
   window.ctx = c.getContext("2d");
