@@ -3,7 +3,7 @@
  */
 Array.prototype.bury = function( n ) {
   if (n < 0)
-    return digUp( -n );
+    return lift( -n );
   if (n > this.length)
     throw "Can't bury deeper than array length.";
   if (n <= this.length) {
@@ -14,7 +14,7 @@ Array.prototype.bury = function( n ) {
   return this.valueOf();
 };
 
-Array.prototype.digUp = function( n ) {
+Array.prototype.lift = function( n ) {
   if (n < 0)
     return bury( -n );
   if (n > this.length)
@@ -124,7 +124,7 @@ var stackOperations = [
             stack.bury( num2 );
         else
           while ( num1++ < 0 )
-            stack.digUp( num2 ); } },
+            stack.lift( num2 ); } },
     function( stack ) { stack.push( inputBuffer.readInt() ); } ],
   [ // Char In, Int Out, Char Out
     function( stack ) { stack.push( inputBuffer.readChar() ); },

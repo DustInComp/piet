@@ -1,172 +1,172 @@
-div {
-  background-color: #f0f0f0;
+.top-panel, .left-panel {
+    background-color: #f0f0f0;
 }
 
 .drawing-area {
-  position: absolute;
-  top: 210px;
-  left: 210px;
-  /*overflow: scroll;*/
-  width: 100px;
-  height: 100px;
+    position: absolute;
+    top: 210px;
+    left: 210px;
+    /*overflow: scroll;*/
+    width: 100px;
+    height: 100px;
 }
 
 .piet-interpreter-panel {
-  position: absolute;
-  width: 400px; height: 400px;
+    position: absolute;
+    width: 400px; height: 400px;
 
-  font-family: sans-serif;
-  background-color: #f8f8f8;
+    font-family: sans-serif;
 }
-  .piet-interpreter-panel div {position: absolute;}
-  .piet-interpreter-panel label {font-size: 16px;}
+.piet-interpreter-panel div {position: absolute;}
+.piet-interpreter-panel label {font-size: 16px;}
 
 /**
- * Panel containing the Color Palette
- * and the table of commands
- */
+* Panel containing the Color Palette
+* and the table of commands
+*/
 .left-panel {
-  width: 200px; height: 600px;
+    width: 200px; height: 600px;
 
-  overflow: hidden;
+    box-shadow: 0 2px 8px gray;
+    overflow: hidden;
 }
-  .color-picker {
+.color-picker {
     left: 10px; top: 10px;
-  }
-    .color-picker button {
-      width: 60px; height: 30px;
+}
+.color-picker button {
+    width: 60px; height: 30px;
 
-      vertical-align: middle;
-    }
-    .color-picker button.misc-color {
-      width: 90px;
-    }
+    vertical-align: middle;
+}
+.color-picker button.misc-color {
+    width: 90px;
+}
 
-  .command-picker {
+.command-picker {
     left: 10px; top: 220px;
-  }
-    .command-picker table {
-      font-family: Arial;
-      font-size: 11px;
+}
+.command-picker table {
+    font-family: Arial;
+    font-size: 11px;
+    text-align: center;
 
-      overflow: hidden;
-    }
-    .command-picker tr:nth-child(n+3) td:nth-child(n+2) {
-      border-bottom-right-radius: 10px;
-      cursor: pointer;
-    }
+    overflow: hidden;
+}
+.command-picker tr:nth-child(n+3) td:nth-child(n+2) {
+    border-radius: 4px;
+    cursor: pointer;
+}
 
 /**
- * Panel containing the canvas' settings, in- and output
- * and the control elements for running the interpreter
- */
+* Panel containing the canvas' settings, in- and output
+* and the control elements for running the interpreter
+*/
 .top-panel {
-  left: 0; top: 0;
-  width: 800px; height: 200px;
-  left: 210px;
+    left: 0; top: 0;
+    width: 800px; height: 200px;
+    left: 210px;
 
-  font-family: sans-serif;
+    box-shadow: 0 2px 8px gray;
+    font-family: sans-serif;
 }
-  .settings-panel {
+.settings-panel {
     left: 10px ;top: 10px;
     width: 180px; height: 180px;
 
+    box-shadow: 0 1px 4px gray;
     background-color: #e0e0e0;
-  }
-    .settings-panel p {
-      margin: 10px 0;
-    }
-    .settings-panel label {
-      width: 90px;
-      margin-left: 10px;
-    }
-    .settings-panel input {
-      position: absolute;
-      left: 100px;
+}
+.settings-panel p {
+    margin: 10px 0;
+}
+.settings-panel label {
+    width: 90px;
+    margin-left: 10px;
+}
+.settings-panel input {
+    position: absolute;
+    left: 100px;
 
-      width: 66px;
-    }
+    width: 66px;
+}
 
-  .io-panel {
-    left: 200px; top: 10px;
-
+.io-panel {
     width: 280px; height: 180px;
-
+    left: 200px; top: 10px;
     padding: 0 10px;
 
+    box-shadow: 0 1px 4px gray;
     background-color: #e0e0e0;
-  }
-    .io-panel p {
-      margin: 10px 0;
-    }
+}
+.io-panel p {
+    margin: 10px 0;
+}
 
-    .input-panel {
-      left: 10px; top: 10px;
-      background-color: #d0d0d0;
-    }
-    .output-panel {
-      left: 10px; top: 59px;
-      background-color: #d0d0d0;
-    }
-      .input-panel input {
-        position: absolute;
-        top: 18px;
-        width: 276px;
-      }
-      .output-panel textarea {
-        position: absolute;
-        top: 18px;
-        width: 274px; height: 87px;
-      }
+.input-panel {
+    left: 10px; top: 10px;
+}
+.output-panel {
+    left: 10px; top: 59px;
+}
+.input-panel input {
+    position: absolute;
+    top: 18px;
+    width: 276px;
+}
+.output-panel textarea {
+    position: absolute;
+    top: 18px;
+    width: 274px; height: 87px;
+}
 
-  .execution-panel {
+.execution-panel {
     left: 510px; top: 10px;
 
     width: 280px; height: 180px;
 
+    box-shadow: 0 1px 4px gray;
     background-color: #e0e0e0;
-  }
-    .execution-panel table {
-      position: absolute;
-      left: 10px; top: 10px;
-      text-align: center;
-    }
-      .execution-panel table img {
-        width: 32px; height: 32px;
+}
+.execution-panel table {
+    position: absolute;
+    left: 10px; top: 10px;
+    text-align: center;
+}
+.execution-panel table img {
+    width: 32px; height: 32px;
 
-        opacity: 0.8;
+    opacity: 0.8;
 
-        cursor: pointer;
-      }
-      .execution-panel table img:hover {
-        opacity: 1;
-      }
-      .execution-panel table img:active {
-        transform: scale(0.9);
-      }
+    cursor: pointer;
+}
+.execution-panel table img:hover {
+    opacity: 1;
+}
+.execution-panel table img:active {
+    transform: scale(0.9);
+}
 
-    .stack-panel {
-      position: absolute;
-      left: 130px; top: 10px;
+.stack-panel {
+    position: absolute;
+    left: 130px; top: 10px;
 
-      width: 140px; height: 160px;
-      background-color: #d0d0d0;
-    }
-      .stack-panel textarea {
-        position: absolute;
-        left: 0; top: 18px;
+    width: 140px; height: 160px;
+}
+.stack-panel textarea {
+    position: absolute;
+    left: 0; top: 18px;
 
-        width: 134px; height: 136px;
-      }
+    width: 134px; height: 136px;
+}
 
 canvas#program, canvas#program-grid {
-  position: absolute;
-  z-index: 1;
+    position: absolute;
+    z-index: 1;
 
-  /*top: 210px;
-  left: 210px;*/
-  top: 0px;
-  left: 0px;
+    /*top: 210px;
+    left: 210px;*/
+    top: 0px;
+    left: 0px;
 
-  border: 1px solid #a0a0a0;
+    border: 1px solid #a0a0a0;
 }

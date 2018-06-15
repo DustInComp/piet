@@ -10,12 +10,12 @@
     <div class="piet-interpreter-panel">
       <div class="left-panel">
         <div class="color-picker" style="opacity:0.75">
-          <button style="background-color:#ffc0c0;border-color:#ffc0c0" type="button" onclick="selectColor(0);"></button><button style="background-color:#ff0000;border-color:#ff0000" type="button" onclick="selectColor(1);"></button><button style="background-color:#c00000;border-color:#c00000" type="button" onclick="selectColor(2);"></button> <br>
-          <button style="background-color:#ffffc0;border-color:#ffffc0" type="button" onclick="selectColor(3);"></button><button style="background-color:#ffff00;border-color:#ffff00" type="button" onclick="selectColor(4);"></button><button style="background-color:#c0c000;border-color:#c0c000" type="button" onclick="selectColor(5);"></button> <br>
-          <button style="background-color:#c0ffc0;border-color:#c0ffc0" type="button" onclick="selectColor(6);"></button><button style="background-color:#00ff00;border-color:#00ff00" type="button" onclick="selectColor(7);"></button><button style="background-color:#00c000;border-color:#00c000" type="button" onclick="selectColor(8);"></button> <br>
-          <button style="background-color:#c0ffff;border-color:#c0ffff" type="button" onclick="selectColor(9);"></button><button style="background-color:#00ffff;border-color:#00ffff" type="button" onclick="selectColor(10);"></button><button style="background-color:#00c0c0;border-color:#00c0c0" type="button" onclick="selectColor(11);"></button> <br>
-          <button style="background-color:#c0c0ff;border-color:#c0c0ff" type="button" onclick="selectColor(12);"></button><button style="background-color:#0000ff;border-color:#0000ff" type="button" onclick="selectColor(13);"></button><button style="background-color:#0000c0;border-color:#0000c0" type="button" onclick="selectColor(14);"></button> <br>
-          <button style="background-color:#ffc0ff;border-color:#ffc0ff" type="button" onclick="selectColor(15);"></button><button style="background-color:#ff00ff;border-color:#ff00ff" type="button" onclick="selectColor(16);"></button><button style="background-color:#c000c0;border-color:#c000c0" type="button" onclick="selectColor(17);"></button> <br>
+          <button style="background-color:#ffc0c0;border-color:#ffc0c0" type="button" onclick="selectColor(0);"></button><button style="background-color:#ff0000;border-color:#ff0000" type="button" onclick="selectColor(1);"></button><button style="background-color:#c00000;border-color:#c00000" type="button" onclick="selectColor(2);"></button><br>
+          <button style="background-color:#ffffc0;border-color:#ffffc0" type="button" onclick="selectColor(3);"></button><button style="background-color:#ffff00;border-color:#ffff00" type="button" onclick="selectColor(4);"></button><button style="background-color:#c0c000;border-color:#c0c000" type="button" onclick="selectColor(5);"></button><br>
+          <button style="background-color:#c0ffc0;border-color:#c0ffc0" type="button" onclick="selectColor(6);"></button><button style="background-color:#00ff00;border-color:#00ff00" type="button" onclick="selectColor(7);"></button><button style="background-color:#00c000;border-color:#00c000" type="button" onclick="selectColor(8);"></button><br>
+          <button style="background-color:#c0ffff;border-color:#c0ffff" type="button" onclick="selectColor(9);"></button><button style="background-color:#00ffff;border-color:#00ffff" type="button" onclick="selectColor(10);"></button><button style="background-color:#00c0c0;border-color:#00c0c0" type="button" onclick="selectColor(11);"></button><br>
+          <button style="background-color:#c0c0ff;border-color:#c0c0ff" type="button" onclick="selectColor(12);"></button><button style="background-color:#0000ff;border-color:#0000ff" type="button" onclick="selectColor(13);"></button><button style="background-color:#0000c0;border-color:#0000c0" type="button" onclick="selectColor(14);"></button><br>
+          <button style="background-color:#ffc0ff;border-color:#ffc0ff" type="button" onclick="selectColor(15);"></button><button style="background-color:#ff00ff;border-color:#ff00ff" type="button" onclick="selectColor(16);"></button><button style="background-color:#c000c0;border-color:#c000c0" type="button" onclick="selectColor(17);"></button><br>
           <button class="misc-color" style="background-color:#000000;border-color:#000000" type="button" onclick="selectColor(18);"></button><button class="misc-color" style="background-color:#ffffff;border-color:#ffffff" type="button" onclick="selectColor(19);"></button>
         </div>
         <div class="command-picker">
@@ -38,64 +38,62 @@
               <td>0</td>
               <td class="cmd-non"></td>
               <td class="cmd-psh" title="Push a number to the stack">Push</td>
-              <td class="cmd-pop" title="Remove the Stack's top value">Pop</td>
+              <td class="cmd-pop" title="Remove the stack's top value">Pop</td>
             </tr>
             <tr>
               <td>1</td>
-              <td class="cmd-add" title="Pop the Stack's top two values.
-Push their sum to the Stack">Add</td>
-              <td class="cmd-sub" title="Pop the Stack's top two values.
-Push the Difference of the second
-  top value minus the top value">Subtract</td>
-              <td class="cmd-mpl" title="Pop the Stack's top two values.
-Push their product to the Stack">Multiply</td>
+              <td class="cmd-add" title="Pop two values.
+Push their sum">Add</td>
+              <td class="cmd-sub" title="Pop two values.
+Push first minus second">Subtract</td>
+              <td class="cmd-mpl" title="Pop two values.
+Push their product">Multiply</td>
             </tr>
             <tr>
               <td>2</td>
-              <td class="cmd-div" title="Pop the Stack's top two values.
-Push the division of the second
-  top value by the top value">Divide</td>
-              <td class="cmd-mod" title="Pop the Stack's top two values.
-Push the modulo of the second
-  top value % the top value">Mod</td>
-              <td class="cmd-not" title="Pop the Stack's top value.
-Push 1 if the value was zero,
+              <td class="cmd-div" title="Pop two values.
+Abort if second is 0.
+Push first divided by second">Divide</td>
+              <td class="cmd-mod" title="Pop two values.
+Abort if second is 0.
+Push first modulo second">Mod</td>
+              <td class="cmd-not" title="Pop one value.
+Push 1 if it's zero,
   push 0 otherwise">Not</td>
             </tr>
             <tr>
               <td>3</td>
-              <td class="cmd-grt" title="Pop the Stack's top two values.
-Push 1 if the second top value is
-  greater than the top value,
+              <td class="cmd-grt" title="Pop two values.
+Push 1 if second is greater than first,
   push 0 otherwise">Greater</td>
-              <td class="cmd-ptr" title="Pop the Stack's top two values.
+              <td class="cmd-ptr" title="Pop the stack's top two values.
 Rotate the direction pointer clockwise
   by 90° that many times">Pointer</td>
-              <td class="cmd-swt" title="Pop the Stack's top value.
+              <td class="cmd-swt" title="Pop a value.
 Take its absolute value and toggle the
   Codel Chooser that many times">Switch</td>
             </tr>
             <tr>
               <td>4</td>
-              <td class="cmd-dup" title="Duplicate the Stack's top value">Duplicate</td>
-              <td class="cmd-rol" title="Pop the Stack's top two values.
+              <td class="cmd-dup" title="Duplicate the stack's top value">Duplicate</td>
+              <td class="cmd-rol" title="Pop the stack's top two values.
 The second top value is the depth d
 The top value is the number of iterations i
 If the top value is positive, bury the
-  remaining Stack's top value to be at
-  the d'th place, i times iteratively
+  remaining stack's top value to be below d
+  numbers, for i iterations
 If the top value is negative, roll the opposite direction">Roll</td>
               <td class="cmd-nbi" title="Push the next value from the
-  input buffer onto the Stack if it
+  input buffer onto the stack if it
   is an Integer">Int&nbsp;In</td>
             </tr>
             <tr>
               <td>5</td>
               <td class="cmd-chi" title="Push the Char value of the
-  Stack's top value ot the Stack">Char&nbsp;In</td>
-              <td class="cmd-nbo" title="Pop the Stack's top value.
+  stack's top value ot the Stack">Char&nbsp;In</td>
+              <td class="cmd-nbo" title="Pop the stack's top value.
 Print its integer value to the output">Int&nbsp;Out</td>
-              <td class="cmd-cho" title="Pop the Stack's top value.
+              <td class="cmd-cho" title="Pop the stack's top value.
 Print the character with its integer
   value to the output">Char&nbsp;Out</td>
             </tr>
