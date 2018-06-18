@@ -54,90 +54,90 @@ function PietImage(width, height) {
  * [hue diff][darkness diff]
  */
 var stackOperations = [
-  [ // None, Push, Pop
-    function(){},
-    function( stack, blockSize ) { stack.push( blockSize ); },
-    function( stack ) { stack.pop(); }
+    [ // None, Push, Pop
+        function(){},
+        function( stack, blockSize ) { stack.push( blockSize ); },
+        function( stack ) { stack.pop(); }
     ],  [ // Add, Subtract, Multiply
     function( stack ) {
-      if (stack.length >= 2)
-        stack.push( stack.pop()+stack.pop() ); },
+        if (stack.length >= 2)
+            stack.push( stack.pop()+stack.pop() ); },
     function( stack ) {
-      if (stack.length >= 2)
-        stack.push( -stack.pop()+stack.pop() ); },
+        if (stack.length >= 2)
+            stack.push( -stack.pop()+stack.pop() ); },
     function( stack ) {
-      if (stack.length >= 2)
-        stack.push( stack.pop()*stack.pop() ); } ],
-  [ // Divide, Mod, Not
+        if (stack.length >= 2)
+            stack.push( stack.pop()*stack.pop() ); }
+    ], [ // Divide, Mod, Not
     function( stack ) {
-      if (stack.length >= 2) {
-        var num1 = stack.pop(),
-            num2 = stack.pop();
+        if (stack.length >= 2) {
+            var num1 = stack.pop(),
+                num2 = stack.pop();
         if (num1 != 0)
-          stack.push( num2/num1 |0 )
+            stack.push( num2/num1 |0 )
         else {
-          alert( "Can't divide by 0." );
-          return;
+            console.error( "Can't divide by 0." );
+            return;
         } } },
     function( stack ) {
-      if (stack.length >= 2) {
-        var num1 = stack.pop(),
-            num2 = stack.pop();
+        if (stack.length >= 2) {
+            var num1 = stack.pop(),
+                num2 = stack.pop();
         if (num1 != 0)
-          stack.push( num2%num1 )
+            stack.push( num2%num1 + (num2<0&&num1) )
         else {
-          alert( "Can't mod 0." );
-          return;
+            console.error( "Can't mod 0." );
+            return;
         } } },
     function( stack ) {
-      if (stack.length >= 1)
-        stack.push( stack.pop()===0 ? 1 : 0 ); } ],
-  [ // Greater, Pointer, Switch
+        if (stack.length >= 1)
+            stack.push( stack.pop()===0 ? 1 : 0 ); }
+    ], [ // Greater, Pointer, Switch
     function( stack ) {
-      if (stack.length >= 2)
-        stack.push( stack.pop() <= stack.pop() ? 1 : 0 ); },
+        if (stack.length >= 2)
+            stack.push( stack.pop() <= stack.pop() ? 1 : 0 ); },
     function( stack ) {
-      if (stack.length >= 1)
-        directionPointer = (directionPointer + stack.pop()) % 4; },
+        if (stack.length >= 1)
+            directionPointer = (directionPointer + stack.pop()) % 4; },
     function( stack ) {
-      if (stack.length >= 1)
-        if ( stack.pop() % 2 === 1 )
-          codelChooser *= -1; } ],
-  [ // Duplicate, Roll, Int In
+        if (stack.length >= 1)
+            if ( stack.pop() % 2 === 1 )
+                codelChooser *= -1; }
+    ], [ // Duplicate, Roll, Int In
     function( stack ) {
-      if (stack.length >= 1)
-        stack.push( stack[stack.length-1] ); },
+        if (stack.length >= 1)
+            stack.push( stack[stack.length-1] ); },
     function( stack ) {
-      if ( stack.length > 2 ) {
-        var num1 = stack.pop(), // Number of rolls
-            num2 = stack.pop(); // Depth of roll
+        if ( stack.length > 2 ) {
+            var num1 = stack.pop(), // Number of rolls
+                num2 = stack.pop(); // Depth of roll
         if ( num2 <= 0 ) {
-          alert( "Roll depth has to be at least 1" );
-          return; }
+            console.error( "Roll depth must be at least 1" );
+            return; }
         if ( num2 > stack.length ) {
-          alert( "Roll depth can't be greater than remaining stack's length" );
-          return; }
-        if ( num1 === 0 ) return;
-
+            console.error( "Roll depth can't be greater than remaining stack's length" );
+            return; }
+        if ( num1 === 0 )
+            return;
         if ( num1 > 0 )
-          while ( num1-- > 0 )
-            stack.bury( num2 );
+            while ( num1-- > 0 )
+                stack.bury( num2 );
         else
-          while ( num1++ < 0 )
-            stack.lift( num2 ); } },
-    function( stack ) { stack.push( inputBuffer.readInt() ); } ],
-  [ // Char In, Int Out, Char Out
+            while ( num1++ < 0 )
+                stack.lift( num2 ); } },
+    function( stack ) { stack.push( inputBuffer.readInt() ); }
+    ], [ // Char In, Int Out, Char Out
     function( stack ) { stack.push( inputBuffer.readChar() ); },
     function( stack ) {
-      if (stack.length >= 1)
-        outputArea.print( stack.pop() );
-      else alert( "Int-Out Error: stack is empty." ) },
+        if (stack.length >= 1)
+            outputArea.print( stack.pop() );
+        else console.error( "Int-Out Error: stack is empty." ) },
     function( stack ) {
-      if (stack.length >= 1)
-        if ((num = stack.pop()) >= 32) {
-          outputArea.print( String.fromCharCode( num ));
-        }
-      else alert( "Int-Out Error: stack is empty." ); } ]
+        if (stack.length >= 1) {
+            if ((num = stack.pop()) >= 32)
+                outputArea.print( String.fromCharCode( num ));
+            else console.warn( "Char-Out Error: value could not be printed." )
+        } else console.error( "Char-Out Error: stack is empty." ); } ]
 ];
 
 function updateStack() {
@@ -152,6 +152,8 @@ function doStackOperation(hueChange, darknessChange, colorBlockSize) {
   stackOperations[hueChange][darknessChange](pietStack, colorBlockSize);
   updateStack();
 }
+
+// ---- Canvas stuff -----------------------------------------------------------
 
 function drawCanvGrid() {
   if (codelSize <= 1) {
@@ -203,18 +205,19 @@ function drawCanvImage() {
   pietImage.matrix.map((row,x)=>row.map((codel,y)=>{ paintOnImage(x,y,pietColors[codel.colorId]) }));
 }
 
-function resetCanvas() {
-  resizeCanvas();
-  resetCanvImage();
-  resetCanvGrid();
+function repaintCanvas() {
+    resizeCanvas();
+    repaintCanvImage();
+    repaintCanvGrid();
 }
-function resetCanvImage() {
-  clearCanvImage();
-  drawCanvImage();
+function repaintCanvImage() {
+    clearCanvImage();
+    drawCanvImage();
+    gridCtx.moveTo( .5*codelSize, .5*codelSize );
 }
-function resetCanvGrid() {
-  clearCanvGrid();
-  drawCanvGrid();
+function repaintCanvGrid() {
+    clearCanvGrid();
+    drawCanvGrid();
 }
 
 function paintOnImage( x, y, color ) {
@@ -224,155 +227,193 @@ function paintOnImage( x, y, color ) {
   }
 }
 
+// ---- Logic ------------------------------------------------------------------
+
 function selectColor( colorId ) {
   selectedColorId = colorId;
   reloadColorHints();
 }
 
+/**
+ * Collect all codels connected to the one at given coordinates
+ */
 function findColorBlock( _x, _y ) {
-  var data = pietImage.matrix, // reference to Codel data
-    colorBlock = new ColorBlock( data[_x][_y].colorId ),
-    codelsChecked = [ data[_x][_y] ],
+    var matrix = pietImage.matrix; // reference to codel matrix
+    var block = new ColorBlock( matrix[_x][_y].colorId );
+    var candidates = [ matrix[_x][_y] ];
 
-  checkCodel = function( codel ) {
-    if (codel.colorId == colorBlock.colorId) {
-      // Add codel to set; push() returns new length of Array
-      colorBlock.count = colorBlock.codels.push( codel );
+    var checkCodel = function( codel ) {
+        if (codel.colorId == block.colorId) {
+            block.codels.push( codel );
+            ({x,y} = codel);
 
-      with(codelsChecked) with(codel) {
-        if ( x >= 1 && indexOf( data[x-1][y] ) === -1 )
-          push( data[x-1][y] );
-        if ( y >= 1 && indexOf( data[x][y-1] ) === -1 )
-          push( data[x][y-1] );
-        if ( x < data.length-1 && indexOf( data[x+1][y] ) === -1 )
-          push( data[x+1][y] );
-        if ( y < data[0].length-1 && indexOf( data[x][y+1] ) === -1 )
-          push( data[x][y+1] ); }
-    }
-  };
-
-  var i = 0;
-  while (i < codelsChecked.length) checkCodel( codelsChecked[i++] );
-
-  return colorBlock;
-}
-
-function determineNextCodel( codeBlock ) {
-  var dP = directionPointer;
-  var cC = codelChooser;
-  var edgeCodel;
-  var targetCodel;
-  var passedWhite = false;
-
-  targetCodel = edgeCodel = codeBlock.codels.reduce( (prev, curr) =>
-    // curr is further to the edge than prev if
-    // it is further along the direction of the directionPointer or
-    // it is as far along that direction and further along the codelChooser
-    //   direction than prev
-    dP == 0 && (
-        curr.x > prev.x ||
-        curr.x == prev.x &&
-            (cC ? curr.y > prev.y
-                : curr.y < prev.y) ) ||
-    dp == 1 && (
-        curr.y > prev.y ||
-        curr.y == prev.y &&
-            (cC ? curr.x < prev.x
-                : curr.x > prev.x) ) ||
-    dp == 2 && (
-        curr.x < prev.x ||
-        curr.x == prev.x &&
-            (cC ? curr.y < prev.y
-                : curr.y > prev.y) ) ||
-    dp == 3 && (
-        curr.y < prev.y ||
-        curr.y == prev.y &&
-            (cC ? curr.x > prev.x
-                : curr.x < prev.x) )
-    ? curr : prev
-  );
-
-    for (var i = (dP%2 ? edgeCodel.y : edgeCodel.x ) + ( dP<2 ? 1 : -1 );
-            dP<2 ? i < (dP&1 ? pietHeight : pietWidth) : i >= 0;
-            dP<2 ? i++ : i-- ) {
-        let codel = dP%2 ? pietImage.matrix[edgeCodel.x][i] : pietImage.matrix[i][edgeCodel.y];
-        if (codel.colorId < 18) {
-            targetCodel = codel;
-            break;
+            if ( x > 0 && !candidates.includes(matrix[x-1][y]) )
+                candidates.push( matrix[x-1][y] );
+            if ( y > 0 && !candidates.includes(matrix[x][y-1]) )
+                candidates.push( matrix[x][y-1] );
+            if ( x < pietWidth-1 && !candidates.includes(matrix[x+1][y]) )
+                candidates.push( matrix[x+1][y] );
+            if ( y < pietHeight-1 && !candidates.includes(matrix[x][y+1]) )
+                candidates.push( matrix[x][y+1] );
         }
-        else if (codel.colorId == 18)
-            break;
-        else if (codel.colorId == 19)
-            passedWhite = true;
+    };
+
+    var i = 0;
+    while (i < candidates.length) {
+        checkCodel( candidates[i++] );
     }
 
-    // make path visible
-    advancePath(edgeCodel, targetCodel, dP, sP);
-
-  return [targetCodel, passedWhite];
+    block.count = block.codels.length;
+    return block;
 }
 
-function advancePath(edgeCodel, targetCodel, dP, sP) {
-  gridCtx.lineTo(
-    (edgeCodel.x+.5 + (!(dP%2)&&(.8*(dP==0) -.4)) + (!(sP%2)&&(.4*(sP==0) -.2)) +.1*(Math.random()-.5) )*codelSize,
-    (edgeCodel.y+.5 + (dP%2&&(.8*(dP==1) -.4)) + (sP%2&&(.4*(sP==1) -.2)) +.1*(Math.random()-.5) )*codelSize
-  );
-  if (targetCodel !== edgeCodel)
+/**
+ * Figure out the next codel to move to
+ */
+function determineNextCodel( currBlock ) {
+    var matrix = pietImage.matrix;
+    var dp = directionPointer;
+    var cc = codelChooser;
+    var edgeCodel = matrix[codelPointer[0]][codelPointer[1]];
+    var tx, ty;
+
+    if ( currBlock.colorId < 18 ) {
+        edgeCodel = currBlock.codels.reduce( (prev, curr) =>
+            // curr is further to the edge than prev if
+            // it is further along the direction of the directionPointer or
+            // it is as far along that direction and further along the codelChooser
+            //   direction than prev
+            dp == 0 && (
+                curr.x > prev.x ||
+                curr.x == prev.x &&
+                    (cc ? curr.y > prev.y
+                        : curr.y < prev.y) ) ||
+            dp == 1 && (
+                curr.y > prev.y ||
+                curr.y == prev.y &&
+                    (cc ? curr.x < prev.x
+                        : curr.x > prev.x) ) ||
+            dp == 2 && (
+                curr.x < prev.x ||
+                curr.x == prev.x &&
+                    (cc ? curr.y < prev.y
+                        : curr.y > prev.y) ) ||
+            dp == 3 && (
+                curr.y < prev.y ||
+                curr.y == prev.y &&
+                    (cc ? curr.x > prev.x
+                        : curr.x < prev.x) )
+            ? curr : prev
+        );
+    }
+    console.log(edgeCodel);
+    [tx, ty] = [
+        edgeCodel.x + (dp&1?0:(dp<2?1:-1)),
+        edgeCodel.y + (dp&1?(dp<2?1:-1):0)
+    ];
+    console.log(tx,ty);
+    var nextCodel = ( tx>=0 && tx<pietWidth
+        && ty>=0 && ty<pietHeight
+        && matrix[tx][ty].colorId != 18 )
+            ? matrix[tx][ty]
+            : edgeCodel;
+
+    return nextCodel;
+}
+
+function advancePath(codel, dp, cc) {
+    var length = pietPath.push([...arguments]);
+
+    if (
+        length>=2
+            && codel.colorId != pietPath[length-2][0].colorId
+            && pietPath[length-2][0].colorId != 19
+        || length >= 3
+            && codel != pietPath[length-2][0]
+            && pietPath[length-2][0] == pietPath[length-3][0]
+            && pietPath[length-2][0].colorId == 19) {
+        var px = codel.x + (dp&1?0:(dp<2?-1:1));
+        var py = codel.y + (dp&1?(dp<2?-1:1):0);
+        gridCtx.lineTo(
+            codelSize*(px+(dp&1?.5+((dp>>1&1)^cc?-1:1)*.2:.9-.8*(dp>>1&1))+.1*(Math.random()-.5)),
+            codelSize*(py+(dp&1?.9-.8*(dp>>1&1):.5+((dp>>1&1)^cc?1:-1)*.2)+.1*(Math.random()-.5))
+        );
+    };
     gridCtx.lineTo(
-      (targetCodel.x+.5 + (!(dP%2)&&(.8*(dP==0) -.4)) + (!(sP%2)&&(.4*(sP==0) -.2)) +.1*(Math.random()-.5) )*codelSize,
-      (targetCodel.y+.5 + (dP%2&&(.8*(dP==1) -.4)) + (sP%2&&(.4*(sP==1) -.2)) +.1*(Math.random()-.5) )*codelSize
+        codelSize*(codel.x+(dp&1?.5+((dp>>1&1)^cc?-1:1)*.2:.9-.8*(dp>>1&1))+.1*(Math.random()-.5)),
+        codelSize*(codel.y+(dp&1?.9-.8*(dp>>1&1):.5+((dp>>1&1)^cc?1:-1)*.2)+.1*(Math.random()-.5))
     );
-  resetCanvGrid();
-  gridCtx.stroke();
+
+    repaintCanvGrid();
+    gridCtx.stroke();
 }
 
 function executeStep() {
     if (codelPointer == null) {
+        initExecution();
         codelPointer = [0, 0];
 
-        resetCanvas();
-        gridCtx.moveTo( .5*codelSize, .5*codelSize );
-
+        advancePath(pietImage.matrix[0][0], 0, 0);
         return;
     }
 
     var prevBlock = findColorBlock( ...codelPointer );
-    var prevHue = prevBlock.colorId/3 |0;
-    var prevDrk = prevBlock.colorId % 3;
-    var [nextCodel, passedWhite] = determineNextCodel( prevBlock );
-    console.log( "from", prevBlock, prevHue, prevDrk );
+    var currCodel = determineNextCodel( prevBlock );
+    console.log( "from", prevBlock, prevBlock.colorId/3 |0, prevBlock.colorId % 3 );
 
-    codelPointer = [nextCodel.x, nextCodel.y];
+    advancePath(currCodel, directionPointer, codelChooser);
+    if ( !prevBlock.codels.includes( currCodel ) ) {
 
-    if ( !prevBlock.codels.includes( nextCodel ) ) {
-        var currBlock = findColorBlock( ...codelPointer ),
-        currHue = currBlock.colorId/3 |0,
-        currDrk = currBlock.colorId % 3;
-        console.log( "to", currBlock, currHue, currDrk );
+        if ( prevBlock.colorId < 18 && currCodel.colorId < 18 ) {
+            var prevHue = prevBlock.colorId/3 |0;
+            var prevDrk = prevBlock.colorId % 3;
+            var currHue = currCodel.colorId/3 |0;
+            var currDrk = currCodel.colorId % 3;
 
-        initialPointerAndChooser = [directionPointer, codelChooser];
-
-        if ( !passedWhite )
             doStackOperation(
                 (currHue-prevHue+6)%6,
                 (currDrk-prevDrk+3)%3,
-                prevBlock.count );
-
+                prevBlock.count
+            );
+        }
+        console.log( "to", findColorBlock( currCodel.x, currCodel.y ), currHue, currDrk );
     } else {
-        (codelChooser = codelChooser+1 & 1)
-        || (directionPointer = directionPointer+1 & 3);
+        var prevCodel = pietImage.matrix[codelPointer[0]][codelPointer[1]];
 
-        console.log( "Direction changed: " +
-            ["right","down","left","up"][directionPointer] + ", then " +
-            (!codelChooser ? "left" : "right") );
-
-        // Pointer in a loop (Next codel can't be found)
-        if ( directionPointer === initialPointerAndChooser[0] &&
-                codelChooser === initialPointerAndChooser[1] ) {
-            alert("Program finished.");
-            resetExecution();
+        // If pointer is sliding across white codels, don't change direction
+        if (! (prevBlock.colorId==19 && currCodel!=prevCodel)) {
+            codelChooser = codelChooser+1 & 1;
+            // If pointer is blocked while on white codel, always change DP
+            if ( codelChooser==0 || prevBlock.colorId==19 ) {
+                directionPointer = directionPointer+1 & 3;
+            }
+            console.log( "Direction changed: " +
+                ["right","down","left","up"][directionPointer] + ", then " +
+                (!codelChooser ? "left" : "right")
+            );
         }
     }
+
+    // Pointer in a loop (Next codel can't be found)
+    if ( isLooping(currCodel, directionPointer, codelChooser) ) {
+        alert("Program finished.");
+        stopExecution();
+        return;
+    }
+
+    codelPointer = [currCodel.x, currCodel.y];
+}
+
+function isLooping( codel, dp, cc ) {
+    for (i = 0; i < pietPath.length-1; i++ ) {
+        var entry = pietPath[pietPath.length-2-i];
+
+        if (entry[0].colorId != codel.colorId)
+            break;
+        if (entry[0]==codel && entry[1]==dp && entry[2]==cc)
+            return true;
+    }
+    return false;
 }
 
 function finishExecution() {
@@ -381,16 +422,19 @@ function finishExecution() {
     } while (codelPointer !== null);
 }
 
-function resetExecution() {
-  window.outputArea.domEl.value = "";
+function stopExecution() {
+    window.codelPointer = null;
+}
+function initExecution() {
+    window.codelPointer = null;
+    window.directionPointer = 0;
+    window.codelChooser = 0;
 
-  window.codelPointer = null;
-
-  window.directionPointer = 0;
-  window.codelChooser = 0;
-  window.initialPointerAndChooser = [directionPointer, codelChooser];
-  window.pietStack = [];
-  updateStack();
+    window.pietStack = [];
+    window.pietPath = [];
+    window.outputArea.domEl.value = "";
+    updateStack();
+    repaintCanvas();
 }
 
 function reloadColorHints() {
@@ -478,44 +522,46 @@ function resizePietImage( newWidth, newHeight ) {
 }
 
 function initialize() {
-  window.inputBuffer = {
-    domEl: document.getElementById("input-buffer"),
+    window.inputBuffer = {
+        domEl: document.getElementById("input-buffer"),
 
-    readChar: function() {
-      var str = inputBuffer.domEl.value,
-        num;
-      if ( str.length === 0 )
-        str = prompt( "Input Buffer is empty.\nEnter some more Input:" )[0];
-      if ( str === null ) {
-        alert( "Char-In Error: No input to work with." );
-        return; }
+        readChar: function() {
+            var str = inputBuffer.domEl.value,
+                num;
+            if ( str.length === 0 )
+                str = prompt( "Input Buffer is empty.\nEnter some character:" )[0];
+            if ( str === null ) {
+                console.error( "Char-In Error: No input to work with." );
+                return;
+            }
+            num = str.charCodeAt(0);
+            inputBuffer.domEl.value = str.substring( 1 );
+            return num;
+        },
 
-      num = str.charCodeAt(0);
-      inputBuffer.domEl.value = str.substring( 1 );
-      return num;
-    },
+        readInt: function() {
+            var str = inputBuffer.domEl.value.trimLeft(),
+                num;
+            if ( str.length === 0 )
+                str = prompt( "Input Buffer is empty.\nEnter some number:" );
+            if ( ! /\d/.test(str[0]) ) {
+                console.error( "Int-In Error: Next input is not numeric." );
+                return;
+            }
 
-    readInt: function() {
-      var str = inputBuffer.domEl.value.trimLeft(),
-        num;
-      if ( str.length === 0 )
-        str = prompt( "Input Buffer is empty.\nEnter some more Input:" );
-      if ( ! /\d/.test(str[0]) ) {
-        alert( "Int-In Error: Next input is not numeric." );
-        return }
-
-      num = str.match(/\d+ ?/)[0];
-      inputBuffer.domEl.value = str.substring( num.length );
-      return parseInt( num );
-    }
-  };
+            num = str.match(/\d+ ?/)[0];
+            inputBuffer.domEl.value = str.substring( num.length );
+            return parseInt( num );
+        }
+    };
 
   window.outputArea = {
     domEl: document.getElementById("output-area"),
     print: function(val) {outputArea.domEl.value += String(val)}
   }
   window.stackArea = document.getElementById("stack-area");
-  window.pietStack = [ ];
+  window.pietStack = [];
+  window.pietPath = [];
 
   window.widthSetting = document.getElementById("setting-canvas_width");
   window.heightSetting = document.getElementById("setting-canvas_height");
@@ -545,25 +591,25 @@ function initialize() {
   window.pietHeight = heightSetting.value;
   window.codelSize = codelSizeSetting.value;
 
-  window.pietImage = new PietImage(pietWidth, pietHeight);
-  resetExecution();
-
   window.c = document.getElementById("program");
   window.ctx = c.getContext("2d");
   window.gridC = document.getElementById("program-grid");
   window.gridCtx = gridC.getContext("2d");
 
+  window.pietImage = new PietImage(pietWidth, pietHeight);
+  initExecution();
+
   document.getElementById("setting-canvas_width").addEventListener("change", function(e) {
     resizePietImage( e.target.valueAsNumber, pietHeight );
-    resetCanvas();
+    repaintCanvas();
   });
   document.getElementById("setting-canvas_height").addEventListener("change", function(e) {
     resizePietImage( pietWidth, e.target.valueAsNumber );
-    resetCanvas();
+    repaintCanvas();
   });
   document.getElementById("setting-codel_size").addEventListener("change", function(e) {
     codelSize = e.target.valueAsNumber;
-    resetCanvas();
+    repaintCanvas();
   });
   document.getElementById("program-grid").addEventListener("click", function(e) {
     console.log(e);
@@ -574,7 +620,7 @@ function initialize() {
   });
   document.getElementById("button-run").addEventListener("click", finishExecution);
   document.getElementById("button-step").addEventListener("click", executeStep);
-  document.getElementById("button-stop").addEventListener("click", resetExecution);
+  document.getElementById("button-stop").addEventListener("click", stopExecution);
 
-  resetCanvas();
+  repaintCanvas();
 };

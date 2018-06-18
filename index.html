@@ -7,7 +7,7 @@
     <script src="src/piet-interpreter.js" charset="utf-8"></script>
   </head>
   <body onload="initialize();">
-    <div class="piet-interpreter-panel">
+    <div class="piet-interpreter-container">
       <div class="left-panel">
         <div class="color-picker" style="opacity:0.75">
           <button style="background-color:#ffc0c0;border-color:#ffc0c0" type="button" onclick="selectColor(0);"></button><button style="background-color:#ff0000;border-color:#ff0000" type="button" onclick="selectColor(1);"></button><button style="background-color:#c00000;border-color:#c00000" type="button" onclick="selectColor(2);"></button><br>
@@ -79,9 +79,8 @@ Take its absolute value and toggle the
               <td class="cmd-rol" title="Pop the stack's top two values.
 The second top value is the depth d
 The top value is the number of iterations i
-If the top value is positive, bury the
-  remaining stack's top value to be below d
-  numbers, for i iterations
+If i is positive, i times: bury the remaining stack's top
+  value to be below d numbers
 If the top value is negative, roll the opposite direction">Roll</td>
               <td class="cmd-nbi" title="Push the next value from the
   input buffer onto the stack if it

@@ -2,23 +2,15 @@
     background-color: #f0f0f0;
 }
 
-.drawing-area {
+.piet-interpreter-container {
     position: absolute;
-    top: 210px;
-    left: 210px;
-    /*overflow: scroll;*/
-    width: 100px;
-    height: 100px;
-}
-
-.piet-interpreter-panel {
-    position: absolute;
-    width: 400px; height: 400px;
+    top: 0; left: 0;
+    margin: 10px;
 
     font-family: sans-serif;
 }
-.piet-interpreter-panel div {position: absolute;}
-.piet-interpreter-panel label {font-size: 16px;}
+.piet-interpreter-container div {position: absolute;}
+.piet-interpreter-container label {font-size: 16px;}
 
 /**
 * Panel containing the Color Palette
@@ -69,104 +61,109 @@
     box-shadow: 0 2px 8px gray;
     font-family: sans-serif;
 }
-.settings-panel {
-    left: 10px ;top: 10px;
-    width: 180px; height: 180px;
+    .settings-panel {
+        left: 10px ;top: 10px;
+        width: 180px; height: 180px;
 
-    box-shadow: 0 1px 4px gray;
-    background-color: #e0e0e0;
-}
-.settings-panel p {
-    margin: 10px 0;
-}
-.settings-panel label {
-    width: 90px;
-    margin-left: 10px;
-}
-.settings-panel input {
+        box-shadow: 0 1px 4px gray;
+        background-color: #e0e0e0;
+    }
+        .settings-panel p {
+            margin: 10px 0;
+        }
+        .settings-panel label {
+            width: 90px;
+            margin-left: 10px;
+        }
+        .settings-panel input {
+            position: absolute;
+            left: 100px;
+
+            width: 66px;
+        }
+
+    .io-panel {
+        width: 280px; height: 180px;
+        left: 200px; top: 10px;
+        padding: 0 10px;
+
+        box-shadow: 0 1px 4px gray;
+        background-color: #e0e0e0;
+    }
+        .io-panel p {
+            margin: 10px 0;
+        }
+
+        .input-panel {
+            left: 10px; top: 10px;
+        }
+            .input-panel input {
+                position: absolute;
+                top: 18px;
+                width: 276px;
+            }
+        .output-panel {
+            left: 10px; top: 59px;
+        }
+            .output-panel textarea {
+                position: absolute;
+                top: 18px;
+                width: 274px; height: 87px;
+            }
+
+    .execution-panel {
+        left: 510px; top: 10px;
+
+        width: 280px; height: 180px;
+
+        box-shadow: 0 1px 4px gray;
+        background-color: #e0e0e0;
+    }
+        .execution-panel table {
+            position: absolute;
+            left: 10px; top: 10px;
+            text-align: center;
+        }
+        .execution-panel table img {
+            width: 32px; height: 32px;
+
+            opacity: 0.8;
+
+            cursor: pointer;
+        }
+        .execution-panel table img:hover {
+            opacity: 1;
+        }
+        .execution-panel table img:active {
+            transform: scale(0.9);
+        }
+
+        .stack-panel {
+            position: absolute;
+            left: 130px; top: 10px;
+
+            width: 140px; height: 160px;
+        }
+            .stack-panel textarea {
+                position: absolute;
+                left: 0; top: 18px;
+
+                width: 134px; height: 136px;
+            }
+.drawing-area {
     position: absolute;
-    left: 100px;
-
-    width: 66px;
+    top: 210px;
+    left: 210px;
+    /*overflow: scroll;*/
+    width: 100px;
+    height: 100px;
 }
-
-.io-panel {
-    width: 280px; height: 180px;
-    left: 200px; top: 10px;
-    padding: 0 10px;
-
-    box-shadow: 0 1px 4px gray;
-    background-color: #e0e0e0;
-}
-.io-panel p {
-    margin: 10px 0;
-}
-
-.input-panel {
-    left: 10px; top: 10px;
-}
-.output-panel {
-    left: 10px; top: 59px;
-}
-.input-panel input {
-    position: absolute;
-    top: 18px;
-    width: 276px;
-}
-.output-panel textarea {
-    position: absolute;
-    top: 18px;
-    width: 274px; height: 87px;
-}
-
-.execution-panel {
-    left: 510px; top: 10px;
-
-    width: 280px; height: 180px;
-
-    box-shadow: 0 1px 4px gray;
-    background-color: #e0e0e0;
-}
-.execution-panel table {
-    position: absolute;
-    left: 10px; top: 10px;
-    text-align: center;
-}
-.execution-panel table img {
-    width: 32px; height: 32px;
-
-    opacity: 0.8;
-
-    cursor: pointer;
-}
-.execution-panel table img:hover {
-    opacity: 1;
-}
-.execution-panel table img:active {
-    transform: scale(0.9);
-}
-
-.stack-panel {
-    position: absolute;
-    left: 130px; top: 10px;
-
-    width: 140px; height: 160px;
-}
-.stack-panel textarea {
-    position: absolute;
-    left: 0; top: 18px;
-
-    width: 134px; height: 136px;
-}
-
 canvas#program, canvas#program-grid {
     position: absolute;
-    z-index: 1;
 
-    /*top: 210px;
-    left: 210px;*/
     top: 0px;
     left: 0px;
 
+    box-shadow: 0 2px 8px lightgray;
     border: 1px solid #a0a0a0;
 }
